@@ -328,5 +328,5 @@ Reste à payer : 30 345,30 €  ✅ Précis
 
 **Version** : 1.0.0
 **Date** : 2025-11-03
-**Auteur** : Claude Code
+**Auteur** : Paul Bihr
 **Licence** : MIT

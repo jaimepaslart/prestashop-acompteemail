@@ -193,7 +193,7 @@ MIT License
 
 ## 👨‍💻 Auteur
 
-Développé par Claude Code pour PrestaShop 1.7.6.5
+Développé par Paul Bihr pour PrestaShop 1.7.6.5
 
 ---
 

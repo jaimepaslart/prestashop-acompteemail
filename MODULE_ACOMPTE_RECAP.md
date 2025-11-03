@@ -356,7 +356,7 @@ Pour toute question : consultez la documentation dans `modules/acompteemail/`.
 
 ---
 
-**Développé par** : Claude Code
+**Développé par** : Paul Bihr
 **Date** : 2025-11-03
 **Version** : 1.0.0
 **PrestaShop** : 1.7.6.5

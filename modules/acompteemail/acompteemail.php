@@ -4,7 +4,7 @@
  *
  * Affiche correctement l'acompte payé et le reste à payer dans les emails de confirmation de commande
  *
- * @author  Claude Code
+ * @author  Paul Bihr
  * @version 1.0.0
  * @license MIT
  */
@@ -20,7 +20,7 @@ class AcompteEmail extends Module
         $this->name = 'acompteemail';
         $this->tab = 'administration';
         $this->version = '1.0.0';
-        $this->author = 'Claude Code';
+        $this->author = 'Paul Bihr';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.7.0.0', 'max' => _PS_VERSION_);
         $this->bootstrap = true;
