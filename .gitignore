@@ -1,0 +1,83 @@
+# PrestaShop .gitignore
+
+# Configuration files
+/app/config/parameters.php
+/app/config/parameters.yml
+
+# Cache and logs
+/cache/*
+!/cache/index.php
+!/cache/.htaccess
+/var/cache/*
+!/var/cache/.htaccess
+/var/logs/*
+!/var/logs/.htaccess
+/log/*
+
+# Download
+/download/*
+!/download/index.php
+!/download/.htaccess
+
+# Upload
+/upload/*
+!/upload/index.php
+!/upload/.htaccess
+
+# Images
+/img/p/*
+/img/c/*
+/img/l/*
+/img/m/*
+/img/s/*
+/img/su/*
+/img/co/*
+/img/st/*
+/img/tmp/*
+
+# Themes
+/themes/*/cache/*
+
+# Modules
+/modules/*/cache/*
+
+# Vendor
+/vendor/
+composer.lock
+
+# Backup files
+*.bak
+*.sql
+*.zip
+*.tar.gz
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+npm-debug.log
+
+# Temporary files
+/admin-dev/autoupgrade/
+/admin-dev/backups/
+/admin-dev/import/
+/admin-dev/export/
+
+# Custom admin folder (change according to your setup)
+/admin*/
+!/admin*/index.php
+!/admin*/.htaccess
