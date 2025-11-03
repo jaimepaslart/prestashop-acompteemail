@@ -788,11 +788,37 @@
                                     </td>
                                     <td bgcolor="#FDFDFD" colspan="3" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;"> {total_tax_paid} </td>
                                   </tr>
+                                  <!-- Affichage conditionnel selon si la commande est soldée ou non -->
+                                  <!-- Si partiellement payée : afficher Total à payer, Acompte, Reste à payer -->
+                                  <!-- Si totalement payée : afficher Total payé -->
+
+                                  <!-- CAS 1 : Commande partiellement payée (acompte) -->
+                                  <!-- Condition : amount_remaining_raw > 0 ET amount_paid_raw > 0 -->
+                                  {if isset($amount_remaining_raw) && $amount_remaining_raw > 0 && isset($amount_paid_raw) && $amount_paid_raw > 0}
+                                  <tr class="order_summary">
+                                    <td bgcolor="#FDFDFD" colspan="3" align="right" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;">Total à payer
+                                    </td>
+                                    <td bgcolor="#FDFDFD" colspan="3" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;"> {total_to_pay} </td>
+                                  </tr>
+                                  <tr class="order_summary">
+                                    <td bgcolor="#FDFDFD" colspan="3" align="right" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #555555; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;">Acompte
+                                    </td>
+                                    <td bgcolor="#FDFDFD" colspan="3" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #555555; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;"> {amount_paid} </td>
+                                  </tr>
+                                  <tr class="order_summary">
+                                    <td bgcolor="#FDFDFD" colspan="3" align="right" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;">Reste à payer
+                                    </td>
+                                    <td bgcolor="#FDFDFD" colspan="3" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;"> {amount_remaining} </td>
+                                  </tr>
+                                  {else}
+                                  <!-- CAS 2 : Commande totalement payée ou pas de données acompte -->
+                                  <!-- Affichage classique -->
                                   <tr class="order_summary">
                                     <td bgcolor="#FDFDFD" colspan="3" align="right" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;">Total payé
                                     </td>
                                     <td bgcolor="#FDFDFD" colspan="3" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-family: Open sans, Arial, sans-serif; background-color: #FDFDFD; color: #353943; font-weight: 600; font-size: 14px; padding: 10px; border: 1px solid #DFDFDF;"> {total_paid} </td>
                                   </tr>
+                                  {/if}
                                 </table>
                               </td>
                             </tr>
