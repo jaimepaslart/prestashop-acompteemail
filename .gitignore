@@ -81,3 +81,23 @@ npm-debug.log
 /admin*/
 !/admin*/index.php
 !/admin*/.htaccess
+
+# Scripts de test (ne pas versionner)
+test_*.php
+send_*.php
+create_*.php
+add_partial_*.php
+*_test_*.php
+
+# Documentation de test (ne pas versionner)
+DIFFERENCE_TEST_VS_PRODUCTION.md
+GUIDE_TEST_PAIEMENT_PARTIEL.md
+INSTRUCTIONS_TEST_FINAL.md
+RAPPORT_TEST_MODULE.md
+TEST_MAINTENANT.md
+EXPLICATION_EMAIL_CONFIRMATION.md
+ACCES_GIT_MODULE.md
+EMAIL_DEBRIEF_CLIENT*.md
+
+# Fichiers de travail
+*.zip
