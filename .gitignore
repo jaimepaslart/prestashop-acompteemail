@@ -49,6 +49,7 @@ composer.lock
 *.bak
 *.sql
 *.zip
+!productstatusinorder.zip
 *.tar.gz
 
 # OS files
@@ -101,3 +102,5 @@ EMAIL_DEBRIEF_CLIENT*.md
 
 # Fichiers de travail
 *.zip
+!productstatusinorder.zip
+.claude/mcp.json
