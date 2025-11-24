@@ -16,15 +16,24 @@ $(document).ready(function() {
             try {
                 var response = JSON.parse(xhr.responseText);
 
+                // Debug: Log response to console
+                console.log('[ProductStatusInOrder] AJAX Response:', response);
+
                 // If products were found, add status badges to the select options
                 if (response.found && response.products) {
+                    // Debug: Log first product to check 'active' field
+                    if (response.products.length > 0) {
+                        console.log('[ProductStatusInOrder] First product:', response.products[0]);
+                        console.log('[ProductStatusInOrder] Has active field?', 'active' in response.products[0]);
+                    }
+
                     // Wait a short moment for the DOM to update
                     setTimeout(function() {
                         addProductStatusBadges(response.products);
                     }, 100);
                 }
             } catch (e) {
-                // Silent fail if JSON parsing fails
+                console.error('[ProductStatusInOrder] Error parsing response:', e);
             }
         }
     });

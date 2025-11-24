@@ -17,11 +17,34 @@ Ce module ajoute un badge visuel (vert pour "Actif", rouge pour "Inactif") à c�
 
 ## Installation
 
+### Méthode 1 : Installation automatique (recommandée)
+
+```bash
+# Rendre le script exécutable
+chmod +x install.sh
+
+# Lancer l'installation
+./install.sh /path/to/prestashop
+```
+
+### Méthode 2 : Installation via le Back-Office
+
+1. Télécharger le fichier `productstatusinorder.zip`
+2. Aller dans Back-Office > Modules > Gestionnaire de modules
+3. Cliquer sur "Charger un module"
+4. Glisser-déposer le fichier ZIP
+5. Cliquer sur "Installer"
+
+### Méthode 3 : Installation manuelle
+
 1. Télécharger le module
 2. Placer le dossier `productstatusinorder` dans `/modules/`
-3. Aller dans Back-Office > Modules > Gestionnaire de modules
-4. Rechercher "Product Status In Order"
-5. Cliquer sur "Installer"
+3. Définir les permissions : `chmod 755 -R modules/productstatusinorder/`
+4. Aller dans Back-Office > Modules > Gestionnaire de modules
+5. Rechercher "Product Status In Order"
+6. Cliquer sur "Installer"
+
+📖 **Guide complet** : Voir [INSTALLATION.md](INSTALLATION.md)
 
 ## Utilisation
 
