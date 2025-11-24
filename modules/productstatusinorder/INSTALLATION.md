@@ -75,52 +75,75 @@ chown www-data:www-data -R .  # Ou l'utilisateur de votre serveur web
 
 ---
 
-## Méthode 3 : Installation via scripts automatiques
+## Méthode 3 : Installation via scripts PHP
 
 ### Scripts disponibles
 
-Le module inclut 3 scripts pour faciliter l'installation :
+Le module inclut 3 scripts PHP pour faciliter l'installation :
 
-#### 1. `install.sh` - Installation automatique
+#### 1. `install.php` - Installation automatique
 
+**Via ligne de commande** :
 ```bash
-chmod +x install.sh
-./install.sh /path/to/prestashop
+cd modules/productstatusinorder
+php install.php
+```
+
+**Via navigateur** :
+```
+http://votresite.com/modules/productstatusinorder/install.php
 ```
 
 **Actions** :
-- ✅ Vérifie PrestaShop et PHP
-- ✅ Copie les fichiers du module
-- ✅ Définit les permissions
+- ✅ Charge PrestaShop automatiquement
+- ✅ Vérifie PHP et PrestaShop
+- ✅ Installe le module en BDD
+- ✅ Enregistre les hooks
 - ✅ Vide le cache
 - ✅ Affiche les instructions
 
-#### 2. `diagnostic.sh` - Vérification de l'installation
+#### 2. `diagnostic.php` - Diagnostic complet
 
+**Via ligne de commande** :
 ```bash
-chmod +x diagnostic.sh
-./diagnostic.sh /path/to/prestashop
+php diagnostic.php
+```
+
+**Via navigateur** :
+```
+http://votresite.com/modules/productstatusinorder/diagnostic.php
 ```
 
 **Vérifie** :
-- ✅ Présence des fichiers
-- ✅ Permissions
+- ✅ Environnement (PHP, PrestaShop)
+- ✅ Fichiers et permissions
+- ✅ Syntaxe PHP
 - ✅ Enregistrement en BDD
 - ✅ Hooks actifs
-- ✅ Cache PrestaShop
-- ✅ Version PHP
+- ✅ État du cache
+- ✅ Recommandations
 
-#### 3. `clean.sh` - Nettoyage/Désinstallation
+#### 3. `clean.php` - Nettoyage/Désinstallation
 
+**Via ligne de commande** :
 ```bash
-chmod +x clean.sh
-./clean.sh /path/to/prestashop
+# Nettoyer uniquement le cache
+php clean.php --cache-only
+
+# Désinstaller complètement
+php clean.php --yes
+```
+
+**Via navigateur** :
+```
+http://votresite.com/modules/productstatusinorder/clean.php
 ```
 
 **Actions** :
-- ✅ Supprime le module
+- ✅ Désinstalle le module de la BDD
+- ✅ Supprime les hooks
 - ✅ Vide le cache
-- ✅ Affiche les requêtes SQL pour nettoyer la BDD
+- ✅ Interface de confirmation (navigateur)
 
 ---
 

@@ -20,18 +20,24 @@ Ce module ajoute un badge visuel (vert pour "Actif", rouge pour "Inactif") à c�
 ### Méthode 1 : Installation automatique (recommandée)
 
 ```bash
-# Rendre les scripts exécutables
-chmod +x install.sh clean.sh diagnostic.sh
-
-# Lancer l'installation
-./install.sh /path/to/prestashop
+# Via ligne de commande
+cd modules/productstatusinorder
+php install.php
 
 # Vérifier l'installation
-./diagnostic.sh /path/to/prestashop
+php diagnostic.php
 
-# Nettoyer/désinstaller (optionnel)
-./clean.sh /path/to/prestashop
+# Nettoyer uniquement le cache
+php clean.php --cache-only
+
+# Désinstaller complètement
+php clean.php
 ```
+
+**Ou via navigateur** :
+- Installation : `http://votresite.com/modules/productstatusinorder/install.php`
+- Diagnostic : `http://votresite.com/modules/productstatusinorder/diagnostic.php`
+- Nettoyage : `http://votresite.com/modules/productstatusinorder/clean.php`
 
 ### Méthode 2 : Installation via le Back-Office
 
