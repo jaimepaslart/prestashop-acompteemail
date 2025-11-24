@@ -20,11 +20,17 @@ Ce module ajoute un badge visuel (vert pour "Actif", rouge pour "Inactif") à c�
 ### Méthode 1 : Installation automatique (recommandée)
 
 ```bash
-# Rendre le script exécutable
-chmod +x install.sh
+# Rendre les scripts exécutables
+chmod +x install.sh clean.sh diagnostic.sh
 
 # Lancer l'installation
 ./install.sh /path/to/prestashop
+
+# Vérifier l'installation
+./diagnostic.sh /path/to/prestashop
+
+# Nettoyer/désinstaller (optionnel)
+./clean.sh /path/to/prestashop
 ```
 
 ### Méthode 2 : Installation via le Back-Office
