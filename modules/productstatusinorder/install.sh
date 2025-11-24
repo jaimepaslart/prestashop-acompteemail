@@ -1,42 +1,37 @@
 #!/bin/bash
 
 ###############################################################################
-# Script d'installation du module ProductStatusInOrder pour PrestaShop 1.7.x
+# Script d'installation du module ProductStatusInOrder
 # Auteur: Paul Bihr
 # Licence: MIT
 ###############################################################################
 
-set -e  # Arrêter en cas d'erreur
+set -e
 
-# Couleurs pour l'affichage
+# Couleurs
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Fonction pour afficher un message d'erreur et quitter
 error_exit() {
     echo -e "${RED}❌ ERREUR: $1${NC}" >&2
     exit 1
 }
 
-# Fonction pour afficher un succès
 success() {
     echo -e "${GREEN}✅ $1${NC}"
 }
 
-# Fonction pour afficher une information
 info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
-# Fonction pour afficher un avertissement
 warning() {
     echo -e "${YELLOW}⚠️  $1${NC}"
 }
 
-# Fonction pour afficher le titre
 title() {
     echo ""
     echo -e "${BLUE}================================================${NC}"
@@ -45,7 +40,6 @@ title() {
     echo ""
 }
 
-# Afficher le titre
 title
 
 # Vérifier les arguments

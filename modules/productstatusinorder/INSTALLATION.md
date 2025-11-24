@@ -75,25 +75,52 @@ chown www-data:www-data -R .  # Ou l'utilisateur de votre serveur web
 
 ---
 
-## Méthode 3 : Installation via script automatique
+## Méthode 3 : Installation via scripts automatiques
 
-### Utilisation du script d'installation
+### Scripts disponibles
+
+Le module inclut 3 scripts pour faciliter l'installation :
+
+#### 1. `install.sh` - Installation automatique
 
 ```bash
-# Rendre le script exécutable
 chmod +x install.sh
-
-# Lancer l'installation
 ./install.sh /path/to/prestashop
 ```
 
-Le script va :
-1. ✅ Vérifier que PrestaShop est présent
-2. ✅ Vérifier la version PHP
-3. ✅ Copier les fichiers du module
-4. ✅ Définir les bonnes permissions
-5. ✅ Vider le cache PrestaShop
-6. ✅ Afficher les instructions pour activer le module
+**Actions** :
+- ✅ Vérifie PrestaShop et PHP
+- ✅ Copie les fichiers du module
+- ✅ Définit les permissions
+- ✅ Vide le cache
+- ✅ Affiche les instructions
+
+#### 2. `diagnostic.sh` - Vérification de l'installation
+
+```bash
+chmod +x diagnostic.sh
+./diagnostic.sh /path/to/prestashop
+```
+
+**Vérifie** :
+- ✅ Présence des fichiers
+- ✅ Permissions
+- ✅ Enregistrement en BDD
+- ✅ Hooks actifs
+- ✅ Cache PrestaShop
+- ✅ Version PHP
+
+#### 3. `clean.sh` - Nettoyage/Désinstallation
+
+```bash
+chmod +x clean.sh
+./clean.sh /path/to/prestashop
+```
+
+**Actions** :
+- ✅ Supprime le module
+- ✅ Vide le cache
+- ✅ Affiche les requêtes SQL pour nettoyer la BDD
 
 ---
 
