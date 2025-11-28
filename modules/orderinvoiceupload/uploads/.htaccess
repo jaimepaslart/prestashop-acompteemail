@@ -1,0 +1,20 @@
+# Deny access to all files in this directory
+# Files should only be accessible via the admin controller
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>
+
+# Disable script execution
+<FilesMatch "\.ph(p[3457]?|t|tml)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>

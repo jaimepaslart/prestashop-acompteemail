@@ -48,8 +48,10 @@ composer.lock
 # Backup files
 *.bak
 *.sql
+!modules/**/sql/*.sql
 *.zip
 !productstatusinorder.zip
+!orderinvoiceupload.zip
 *.tar.gz
 
 # OS files
@@ -101,6 +103,4 @@ ACCES_GIT_MODULE.md
 EMAIL_DEBRIEF_CLIENT*.md
 
 # Fichiers de travail
-*.zip
-!productstatusinorder.zip
 .claude/mcp.json

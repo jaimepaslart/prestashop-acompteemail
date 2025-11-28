@@ -1,0 +1,198 @@
+/**
+ * Order Invoice Upload - Styles CSS pour le Back Office
+ *
+ * @author    Paul Bihr
+ * @copyright 2025 Paul Bihr
+ * @license   MIT
+ */
+
+/* Container principal du module */
+.orderinvoiceupload-card {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Header de la card */
+.orderinvoiceupload-card .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 20px;
+}
+
+.orderinvoiceupload-card .card-header-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #363a41;
+    display: flex;
+    align-items: center;
+}
+
+.orderinvoiceupload-card .card-header-title .material-icons {
+    margin-right: 10px;
+    color: #25b9d7;
+}
+
+/* Corps de la card */
+.orderinvoiceupload-card .card-body {
+    padding: 20px;
+}
+
+/* Section facture existante */
+.orderinvoiceupload-existing-invoice .alert-info {
+    background-color: #e8f4f8;
+    border-color: #25b9d7;
+}
+
+.orderinvoiceupload-existing-invoice .alert-info h4 {
+    color: #1a8a9e;
+    margin-bottom: 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.orderinvoiceupload-existing-invoice .alert-info h4 .material-icons {
+    margin-right: 8px;
+    color: #25b9d7;
+}
+
+/* Table des infos de la facture */
+.orderinvoiceupload-card table {
+    background-color: #fff;
+}
+
+.orderinvoiceupload-card table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+/* Boutons d'action */
+.orderinvoiceupload-card .btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.orderinvoiceupload-card .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.orderinvoiceupload-card .btn .material-icons {
+    font-size: 18px;
+}
+
+/* Formulaire d'upload */
+.orderinvoiceupload-form .custom-file {
+    margin-bottom: 10px;
+}
+
+.orderinvoiceupload-form .custom-file-input:focus ~ .custom-file-label {
+    border-color: #25b9d7;
+    box-shadow: 0 0 0 0.2rem rgba(37, 185, 215, 0.25);
+}
+
+.orderinvoiceupload-form .custom-file-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Messages d'alerte */
+.orderinvoiceupload-card .alert {
+    display: flex;
+    align-items: flex-start;
+}
+
+.orderinvoiceupload-card .alert .material-icons {
+    margin-right: 10px;
+    margin-top: 2px;
+}
+
+.orderinvoiceupload-card .alert ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.orderinvoiceupload-card .alert ul li {
+    display: flex;
+    align-items: center;
+}
+
+.orderinvoiceupload-card .alert ul li .material-icons {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+/* Modal de suppression */
+#orderinvoiceupload-delete-modal .modal-header {
+    background-color: #fef3f2;
+    border-bottom-color: #fecaca;
+}
+
+#orderinvoiceupload-delete-modal .modal-title {
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+}
+
+#orderinvoiceupload-delete-modal .modal-title .material-icons {
+    margin-right: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .orderinvoiceupload-card .btn-group {
+        flex-direction: column;
+    }
+
+    .orderinvoiceupload-card .btn-group .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Animation pour le drag & drop (si implémenté plus tard) */
+.orderinvoiceupload-form .custom-file-input.dragover ~ .custom-file-label {
+    background-color: #e8f4f8;
+    border-color: #25b9d7;
+    border-style: dashed;
+}
+
+/* États de validation */
+.orderinvoiceupload-form .custom-file-input:invalid ~ .custom-file-label {
+    border-color: #dc3545;
+}
+
+.orderinvoiceupload-form .custom-file-input:valid ~ .custom-file-label {
+    border-color: #28a745;
+}
+
+/* Icône PDF dans la table */
+.orderinvoiceupload-card .text-danger.material-icons {
+    color: #dc3545 !important;
+}
+
+/* Séparateur */
+.orderinvoiceupload-card hr {
+    border-top: 1px dashed #ddd;
+    margin: 20px 0;
+}
+
+/* Titre de section */
+.orderinvoiceupload-card h4 {
+    font-size: 14px;
+    color: #363a41;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.orderinvoiceupload-card h4 .material-icons {
+    margin-right: 8px;
+    color: #6c757d;
+}
