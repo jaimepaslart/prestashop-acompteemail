@@ -5,6 +5,7 @@
 Instance PrestaShop 1.7.6.5 avec modules personnalisés :
 - **AcompteEmail** : Gestion des paiements partiels (acomptes) dans les emails
 - **ProductStatusInOrder** : Affichage du statut actif/inactif des produits lors de la création de commandes
+- **OrderInvoiceUpload** : Upload de factures PDF manuelles avec telechargement client
 
 **Dépôt Git** : https://github.com/jaimepaslart/prestashop-acompteemail.git
 
@@ -228,8 +229,9 @@ Le module AcompteEmail ajoute ces variables aux emails `order_conf` :
 
 ## Dépendances et Compatibilité
 
-- **PrestaShop** : 1.7.0.0 à 1.7.8.x
-- **PHP** : 7.1 à 8.1
+**EXIGENCE OBLIGATOIRE pour tous les modules** :
+- **PrestaShop** : 1.7.6.5 à 1.7.8.11
+- **PHP** : 7.2 à 7.4
 - **MySQL** : 5.6+
 - **Smarty** : 3.x (intégré à PrestaShop)
 
@@ -272,6 +274,16 @@ Expert en :
 5. Commiter les changements
 
 ### Convention de Création de Modules
+
+**COMPATIBILITÉ OBLIGATOIRE** :
+Tous les modules DOIVENT etre compatibles avec :
+- **PHP** : 7.2, 7.3, 7.4 (pas de fonctionnalites PHP 8+)
+- **PrestaShop** : 1.7.6.5 a 1.7.8.11
+
+Dans le fichier principal du module, utiliser :
+```php
+$this->ps_versions_compliancy = array('min' => '1.7.6.0', 'max' => '1.7.8.99');
+```
 
 **IMPORTANT** : Chaque nouveau module PrestaShop DOIT inclure les 3 scripts PHP d'administration suivants :
 
