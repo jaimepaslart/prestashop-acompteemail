@@ -1,0 +1,143 @@
+/**
+ * Order Invoice Upload - Styles CSS front-office
+ *
+ * Styles pour le bloc "Facture associée" sur la page
+ * de détail de commande dans le compte client.
+ *
+ * @author    Paul Bihr
+ * @copyright 2025 Paul Bihr
+ * @license   MIT
+ */
+
+/* Container principal du bloc facture */
+.orderinvoiceupload-front-block {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+/* Titre du bloc */
+.orderinvoiceupload-front-block .page-subheading {
+    font-size: 18px;
+    font-weight: 600;
+    color: #232323;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+}
+
+.orderinvoiceupload-front-block .page-subheading i,
+.orderinvoiceupload-front-block .page-subheading .material-icons {
+    margin-right: 10px;
+    color: #25b9d7;
+    font-size: 24px;
+}
+
+/* Informations sur la facture */
+.orderinvoiceupload-invoice-info {
+    margin-top: 15px;
+}
+
+.orderinvoiceupload-invoice-info table {
+    width: 100%;
+    margin-bottom: 15px;
+    background-color: #ffffff;
+}
+
+.orderinvoiceupload-invoice-info table th {
+    width: 150px;
+    font-weight: 600;
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.orderinvoiceupload-invoice-info table td {
+    color: #232323;
+}
+
+.orderinvoiceupload-invoice-info table td i,
+.orderinvoiceupload-invoice-info table td .material-icons {
+    vertical-align: middle;
+    margin-right: 5px;
+    color: #dc3545;
+}
+
+/* Bouton de téléchargement */
+.orderinvoiceupload-download-btn {
+    margin-top: 15px;
+}
+
+.orderinvoiceupload-download-btn .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.orderinvoiceupload-download-btn .btn i,
+.orderinvoiceupload-download-btn .btn .material-icons {
+    font-size: 18px;
+}
+
+.orderinvoiceupload-download-btn .btn:hover {
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .orderinvoiceupload-front-block {
+        padding: 15px;
+    }
+
+    .orderinvoiceupload-front-block .page-subheading {
+        font-size: 16px;
+    }
+
+    .orderinvoiceupload-invoice-info table th {
+        width: 120px;
+        font-size: 13px;
+    }
+
+    .orderinvoiceupload-invoice-info table td {
+        font-size: 13px;
+    }
+
+    .orderinvoiceupload-download-btn .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Icône PDF */
+.orderinvoiceupload-invoice-info .text-danger {
+    color: #dc3545 !important;
+}
+
+/* Style pour les thèmes qui n'ont pas Material Icons */
+.orderinvoiceupload-front-block .material-icons {
+    font-family: 'Material Icons', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Fallback si Material Icons n'est pas disponible */
+.orderinvoiceupload-front-block .page-subheading::before {
+    content: none; /* Désactive le pseudo-élément par défaut */
+}

@@ -112,19 +112,26 @@ class OrderInvoiceUpload extends Module
         }
 
         // Installer le module et enregistrer les hooks
-        // Hooks utilisés :
+        // Hooks Back Office :
         // - displayAdminOrder : Affichage dans la page commande (compatible 1.7.6.x)
         // - displayAdminOrderMain : Zone principale page commande (1.7.7+)
         // - displayAdminOrderTabLink : Lien d'onglet (1.7.7+)
         // - displayAdminOrderTabContent : Contenu d'onglet (1.7.7+)
-        // - actionAdminControllerSetMedia : Chargement CSS/JS
+        // - actionAdminControllerSetMedia : Chargement CSS/JS admin
+        // - displayBackOfficeHeader : Fallback CSS admin
+        //
+        // Hooks Front Office :
+        // - displayOrderDetail : Affichage sur la page détail commande client
+        // - displayHeader : Chargement CSS front
         return parent::install()
             && $this->registerHook('displayAdminOrder')
             && $this->registerHook('displayAdminOrderMain')
             && $this->registerHook('displayAdminOrderTabLink')
             && $this->registerHook('displayAdminOrderTabContent')
             && $this->registerHook('actionAdminControllerSetMedia')
-            && $this->registerHook('displayBackOfficeHeader');
+            && $this->registerHook('displayBackOfficeHeader')
+            && $this->registerHook('displayOrderDetail')
+            && $this->registerHook('displayHeader');
     }
 
     /**
@@ -697,5 +704,98 @@ class OrderInvoiceUpload extends Module
         // Envoyer le contenu du fichier
         readfile($filePath);
         exit;
+    }
+
+    /* =========================================================================
+     * HOOKS FRONT OFFICE
+     * ========================================================================= */
+
+    /**
+     * Hook displayHeader - Chargement des CSS front-office
+     *
+     * @param array $params Paramètres du hook
+     * @return void
+     */
+    public function hookDisplayHeader($params)
+    {
+        // Charger le CSS front uniquement sur la page de détail de commande
+        $controller = Tools::getValue('controller');
+        if ($controller === 'order-detail') {
+            $this->context->controller->registerStylesheet(
+                'orderinvoiceupload-front',
+                'modules/' . $this->name . '/views/css/front.css',
+                array('media' => 'all', 'priority' => 150)
+            );
+        }
+    }
+
+    /**
+     * Hook displayOrderDetail - Affichage sur la page détail commande client
+     *
+     * Ce hook affiche le bloc "Facture associée" sur la page de détail
+     * d'une commande dans le compte client.
+     *
+     * Sécurité :
+     * - Vérifie que le client est connecté
+     * - Vérifie que la commande appartient au client
+     * - Interface en lecture seule uniquement
+     *
+     * @param array $params Paramètres du hook (contient 'order')
+     * @return string HTML à afficher
+     */
+    public function hookDisplayOrderDetail($params)
+    {
+        // Vérifier que le client est connecté
+        if (!$this->context->customer->isLogged()) {
+            return '';
+        }
+
+        // Récupérer la commande depuis les paramètres
+        $order = isset($params['order']) ? $params['order'] : null;
+
+        if (!$order || !Validate::isLoadedObject($order)) {
+            return '';
+        }
+
+        // SÉCURITÉ : Vérifier que la commande appartient au client connecté
+        if ((int) $order->id_customer !== (int) $this->context->customer->id) {
+            return '';
+        }
+
+        // Récupérer la facture associée
+        $invoiceFile = OrderInvoiceUploadFile::getByOrderId((int) $order->id);
+
+        // Si aucune facture, ne rien afficher
+        if (!$invoiceFile) {
+            return '';
+        }
+
+        // Générer l'URL de téléchargement front
+        $downloadUrl = $this->getFrontDownloadUrl((int) $order->id);
+
+        // Préparer les variables pour le template
+        $this->context->smarty->assign(array(
+            'orderinvoiceupload_invoice' => $invoiceFile,
+            'orderinvoiceupload_download_url' => $downloadUrl,
+            'orderinvoiceupload_order_reference' => $order->reference,
+        ));
+
+        return $this->display(__FILE__, 'views/templates/hook/order_invoice_front.tpl');
+    }
+
+    /**
+     * Génère l'URL de téléchargement front pour une facture
+     *
+     * @param int $idOrder ID de la commande
+     * @return string URL de téléchargement
+     */
+    public function getFrontDownloadUrl($idOrder)
+    {
+        return $this->context->link->getModuleLink(
+            $this->name,
+            'download',
+            array('id_order' => (int) $idOrder),
+            true
+        );
     }
 }
