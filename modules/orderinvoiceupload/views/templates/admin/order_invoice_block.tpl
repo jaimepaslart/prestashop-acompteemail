@@ -155,6 +155,7 @@
 
             <input type="hidden" name="token" value="{$orderinvoiceupload_token|escape:'html':'UTF-8'}">
             <input type="hidden" name="id_order" value="{$orderinvoiceupload_id_order|intval}">
+            <input type="hidden" name="submitOrderInvoiceUpload" value="1">
 
             <div class="form-group">
                 <label for="invoice_file" class="form-control-label">

@@ -1,0 +1,12 @@
+Hello {firstname} {lastname},
+
+An invoice has been added to your order {order_reference}.
+
+You can view and download this invoice from your customer account, in your order details.
+
+View my order: {order_link}
+
+If you have any questions about this invoice, please do not hesitate to contact us.
+
+---
+This message was sent automatically. Please do not reply directly.

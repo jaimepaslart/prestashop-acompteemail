@@ -16,6 +16,12 @@ Module PrestaShop permettant de téléverser manuellement une facture PDF pour c
 - ✅ Interface en lecture seule (aucun upload côté front)
 - ✅ Vérification que la commande appartient au client
 
+### Configuration
+- ✅ Page de configuration dans le Back Office
+- ✅ Activation/désactivation de l'affichage front
+- ✅ Notification email au client lors de l'ajout d'une facture
+- ✅ Taille maximale des fichiers configurable (1-50 Mo)
+
 ### Général
 - ✅ Compatible PrestaShop 1.7.6.5 à 1.7.8.11
 - ✅ Compatible PHP 7.2 à 7.4
@@ -130,6 +136,14 @@ orderinvoiceupload/
 │   ├── index.php
 │   └── .htaccess
 │
+├── mails/                           # Templates d'email
+│   ├── fr/
+│   │   ├── orderinvoiceupload_notification.html
+│   │   └── orderinvoiceupload_notification.txt
+│   └── en/
+│       ├── orderinvoiceupload_notification.html
+│       └── orderinvoiceupload_notification.txt
+│
 └── translations/
     └── index.php
 ```
@@ -184,13 +198,21 @@ Le module crée une table `ps_order_invoice_upload` avec les champs :
 
 ## Configuration
 
-La taille maximale des fichiers est définie dans `orderinvoiceupload.php` :
+Le module dispose d'une page de configuration accessible via :
+**Modules > Gestionnaire de modules > Order Invoice Upload > Configurer**
 
-```php
-const MAX_FILE_SIZE = 5242880; // 5 Mo
-```
+### Paramètres disponibles
 
-Modifiez cette valeur selon vos besoins.
+| Paramètre | Type | Description | Défaut |
+|-----------|------|-------------|--------|
+| Affichage front-office | Switch | Permet aux clients de voir leurs factures | Activé |
+| Notification email | Switch | Envoie un email au client lors de l'ajout d'une facture | Désactivé |
+| Taille max fichiers | Numérique | Limite en Mo (1-50) | 5 Mo |
+
+### Templates d'email
+
+Le module inclut des templates d'email multilingues (FR/EN) pour notifier les clients.
+Les templates sont situés dans `mails/fr/` et `mails/en/`.
 
 ## Compatibilité
 

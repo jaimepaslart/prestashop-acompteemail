@@ -1,0 +1,12 @@
+Bonjour {firstname} {lastname},
+
+Une facture a été ajoutée à votre commande {order_reference}.
+
+Vous pouvez consulter et télécharger cette facture depuis votre espace client, dans le détail de votre commande.
+
+Voir ma commande : {order_link}
+
+Si vous avez des questions concernant cette facture, n'hésitez pas à nous contacter.
+
+---
+Ce message a été envoyé automatiquement. Merci de ne pas y répondre directement.

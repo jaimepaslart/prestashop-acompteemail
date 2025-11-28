@@ -26,10 +26,16 @@ require_once dirname(__FILE__) . '/classes/OrderInvoiceUploadFile.php';
 class OrderInvoiceUpload extends Module
 {
     /**
-     * Taille maximale du fichier en octets (5 Mo)
-     * Modifiez cette valeur selon vos besoins
+     * Clés de configuration du module
      */
-    const MAX_FILE_SIZE = 5242880; // 5 * 1024 * 1024
+    const CONFIG_FRONT_ENABLED = 'ORDERINVOICEUPLOAD_FRONT_ENABLED';
+    const CONFIG_EMAIL_ENABLED = 'ORDERINVOICEUPLOAD_EMAIL_ENABLED';
+    const CONFIG_MAX_FILE_SIZE = 'ORDERINVOICEUPLOAD_MAX_FILE_SIZE';
+
+    /**
+     * Taille maximale par défaut (5 Mo)
+     */
+    const DEFAULT_MAX_FILE_SIZE = 5;
 
     /**
      * Extensions autorisées
@@ -111,6 +117,14 @@ class OrderInvoiceUpload extends Module
             return false;
         }
 
+        // Initialiser les paramètres de configuration par défaut
+        Configuration::updateValue(self::CONFIG_FRONT_ENABLED, 1);
+        Configuration::updateValue(self::CONFIG_EMAIL_ENABLED, 0);
+        Configuration::updateValue(self::CONFIG_MAX_FILE_SIZE, self::DEFAULT_MAX_FILE_SIZE);
+
+        // Installer les templates d'email
+        $this->installEmailTemplates();
+
         // Installer le module et enregistrer les hooks
         // Hooks Back Office :
         // - displayAdminOrder : Affichage dans la page commande (compatible 1.7.6.x)
@@ -148,6 +162,11 @@ class OrderInvoiceUpload extends Module
         if (!$this->executeSqlFile('uninstall')) {
             return false;
         }
+
+        // Supprimer les paramètres de configuration
+        Configuration::deleteByName(self::CONFIG_FRONT_ENABLED);
+        Configuration::deleteByName(self::CONFIG_EMAIL_ENABLED);
+        Configuration::deleteByName(self::CONFIG_MAX_FILE_SIZE);
 
         return parent::uninstall();
     }
@@ -358,11 +377,12 @@ class OrderInvoiceUpload extends Module
         $invoiceFile = OrderInvoiceUploadFile::getByOrderId($idOrder);
 
         // Préparer les variables pour le template
+        $maxFileSize = $this->getMaxFileSize();
         $this->context->smarty->assign(array(
             'orderinvoiceupload_id_order' => $idOrder,
             'orderinvoiceupload_invoice' => $invoiceFile,
-            'orderinvoiceupload_max_size' => self::MAX_FILE_SIZE,
-            'orderinvoiceupload_max_size_mb' => round(self::MAX_FILE_SIZE / (1024 * 1024), 1),
+            'orderinvoiceupload_max_size' => $maxFileSize,
+            'orderinvoiceupload_max_size_mb' => round($maxFileSize / (1024 * 1024), 1),
             'orderinvoiceupload_allowed_extensions' => implode(', ', self::ALLOWED_EXTENSIONS),
             'orderinvoiceupload_upload_url' => $this->context->link->getAdminLink('AdminOrders') . '&vieworder&id_order=' . $idOrder,
             'orderinvoiceupload_download_url' => $invoiceFile ? $this->getDownloadUrl($idOrder) : '',
@@ -469,10 +489,11 @@ class OrderInvoiceUpload extends Module
         }
 
         // Vérifier la taille du fichier
-        if ($file['size'] > self::MAX_FILE_SIZE) {
+        $maxFileSize = $this->getMaxFileSize();
+        if ($file['size'] > $maxFileSize) {
             $this->moduleMessages['errors'][] = sprintf(
                 $this->l('Le fichier est trop volumineux. Taille maximale : %s Mo.'),
-                round(self::MAX_FILE_SIZE / (1024 * 1024), 1)
+                round($maxFileSize / (1024 * 1024), 1)
             );
             return false;
         }
@@ -530,6 +551,9 @@ class OrderInvoiceUpload extends Module
             $this->moduleMessages['errors'][] = $this->l('Erreur lors de l\'enregistrement en base de données.');
             return false;
         }
+
+        // Envoyer l'email de notification au client (si activé)
+        $this->sendInvoiceNotificationEmail($idOrder);
 
         $this->moduleMessages['success'][] = $this->l('Facture téléversée avec succès.');
         return true;
@@ -745,6 +769,11 @@ class OrderInvoiceUpload extends Module
      */
     public function hookDisplayOrderDetail($params)
     {
+        // Vérifier si l'affichage front est activé
+        if (!Configuration::get(self::CONFIG_FRONT_ENABLED)) {
+            return '';
+        }
+
         // Vérifier que le client est connecté
         if (!$this->context->customer->isLogged()) {
             return '';
@@ -796,6 +825,260 @@ class OrderInvoiceUpload extends Module
             'download',
             array('id_order' => (int) $idOrder),
             true
+        );
+    }
+
+    /* =========================================================================
+     * PAGE DE CONFIGURATION
+     * ========================================================================= */
+
+    /**
+     * Affiche la page de configuration du module
+     *
+     * @return string HTML de la page de configuration
+     */
+    public function getContent()
+    {
+        $output = '';
+
+        // Traiter le formulaire si soumis
+        if (Tools::isSubmit('submitOrderInvoiceUploadConfig')) {
+            $output .= $this->processConfigForm();
+        }
+
+        // Afficher le formulaire de configuration
+        $output .= $this->renderConfigForm();
+
+        return $output;
+    }
+
+    /**
+     * Traite la soumission du formulaire de configuration
+     *
+     * @return string Messages de confirmation ou d'erreur
+     */
+    protected function processConfigForm()
+    {
+        $errors = array();
+
+        // Récupérer les valeurs
+        $frontEnabled = (int) Tools::getValue(self::CONFIG_FRONT_ENABLED);
+        $emailEnabled = (int) Tools::getValue(self::CONFIG_EMAIL_ENABLED);
+        $maxFileSize = (int) Tools::getValue(self::CONFIG_MAX_FILE_SIZE);
+
+        // Valider la taille maximale
+        if ($maxFileSize < 1 || $maxFileSize > 50) {
+            $errors[] = $this->l('La taille maximale doit être comprise entre 1 et 50 Mo.');
+        }
+
+        // S'il y a des erreurs, les afficher
+        if (!empty($errors)) {
+            return $this->displayError(implode('<br>', $errors));
+        }
+
+        // Enregistrer les valeurs
+        Configuration::updateValue(self::CONFIG_FRONT_ENABLED, $frontEnabled);
+        Configuration::updateValue(self::CONFIG_EMAIL_ENABLED, $emailEnabled);
+        Configuration::updateValue(self::CONFIG_MAX_FILE_SIZE, $maxFileSize);
+
+        return $this->displayConfirmation($this->l('Paramètres enregistrés avec succès.'));
+    }
+
+    /**
+     * Génère le formulaire de configuration avec HelperForm
+     *
+     * @return string HTML du formulaire
+     */
+    protected function renderConfigForm()
+    {
+        // Définir les champs du formulaire
+        $fields_form = array(
+            'form' => array(
+                'legend' => array(
+                    'title' => $this->l('Paramètres'),
+                    'icon' => 'icon-cogs',
+                ),
+                'input' => array(
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Affichage côté front-office'),
+                        'name' => self::CONFIG_FRONT_ENABLED,
+                        'desc' => $this->l('Permettre aux clients de voir et télécharger leurs factures depuis leur compte.'),
+                        'is_bool' => true,
+                        'values' => array(
+                            array(
+                                'id' => 'front_enabled_on',
+                                'value' => 1,
+                                'label' => $this->l('Oui'),
+                            ),
+                            array(
+                                'id' => 'front_enabled_off',
+                                'value' => 0,
+                                'label' => $this->l('Non'),
+                            ),
+                        ),
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Notification client par email'),
+                        'name' => self::CONFIG_EMAIL_ENABLED,
+                        'desc' => $this->l('Envoyer un email au client lorsqu\'une facture est ajoutée ou remplacée.'),
+                        'is_bool' => true,
+                        'values' => array(
+                            array(
+                                'id' => 'email_enabled_on',
+                                'value' => 1,
+                                'label' => $this->l('Oui'),
+                            ),
+                            array(
+                                'id' => 'email_enabled_off',
+                                'value' => 0,
+                                'label' => $this->l('Non'),
+                            ),
+                        ),
+                    ),
+                    array(
+                        'type' => 'text',
+                        'label' => $this->l('Taille maximale des fichiers (Mo)'),
+                        'name' => self::CONFIG_MAX_FILE_SIZE,
+                        'desc' => $this->l('Taille maximale autorisée pour les fichiers PDF (entre 1 et 50 Mo).'),
+                        'class' => 'fixed-width-sm',
+                        'suffix' => 'Mo',
+                    ),
+                ),
+                'submit' => array(
+                    'title' => $this->l('Enregistrer'),
+                    'class' => 'btn btn-default pull-right',
+                ),
+            ),
+        );
+
+        // Créer l'instance HelperForm
+        $helper = new HelperForm();
+        $helper->module = $this;
+        $helper->name_controller = $this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+        $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
+        $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
+        $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') ? Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG') : 0;
+        $helper->title = $this->displayName;
+        $helper->submit_action = 'submitOrderInvoiceUploadConfig';
+
+        // Valeurs par défaut
+        $helper->fields_value[self::CONFIG_FRONT_ENABLED] = Configuration::get(self::CONFIG_FRONT_ENABLED);
+        $helper->fields_value[self::CONFIG_EMAIL_ENABLED] = Configuration::get(self::CONFIG_EMAIL_ENABLED);
+        $helper->fields_value[self::CONFIG_MAX_FILE_SIZE] = Configuration::get(self::CONFIG_MAX_FILE_SIZE);
+
+        return $helper->generateForm(array($fields_form));
+    }
+
+    /**
+     * Retourne la taille maximale autorisée pour les fichiers (en octets)
+     *
+     * @return int Taille en octets
+     */
+    public function getMaxFileSize()
+    {
+        $maxSizeMb = (int) Configuration::get(self::CONFIG_MAX_FILE_SIZE);
+        if ($maxSizeMb < 1) {
+            $maxSizeMb = self::DEFAULT_MAX_FILE_SIZE;
+        }
+        return $maxSizeMb * 1024 * 1024;
+    }
+
+    /**
+     * Installe les templates d'email du module
+     *
+     * @return bool
+     */
+    protected function installEmailTemplates()
+    {
+        $languages = Language::getLanguages(false);
+        $sourcePath = dirname(__FILE__) . '/mails/';
+
+        foreach ($languages as $lang) {
+            $isoCode = $lang['iso_code'];
+
+            // Utiliser le template FR par défaut si la langue n'existe pas
+            $langSource = file_exists($sourcePath . $isoCode) ? $isoCode : 'fr';
+            $sourceDir = $sourcePath . $langSource . '/';
+            $destDir = _PS_MAIL_DIR_ . $isoCode . '/';
+
+            // S'assurer que le répertoire destination existe
+            if (!is_dir($destDir)) {
+                continue;
+            }
+
+            // Copier les templates si ils existent
+            $templates = array(
+                'orderinvoiceupload_notification.html',
+                'orderinvoiceupload_notification.txt',
+            );
+
+            foreach ($templates as $template) {
+                if (file_exists($sourceDir . $template)) {
+                    copy($sourceDir . $template, $destDir . $template);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Envoie un email de notification au client
+     *
+     * @param int $idOrder ID de la commande
+     * @return bool
+     */
+    protected function sendInvoiceNotificationEmail($idOrder)
+    {
+        // Vérifier que les emails sont activés
+        if (!Configuration::get(self::CONFIG_EMAIL_ENABLED)) {
+            return true;
+        }
+
+        // Charger la commande
+        $order = new Order($idOrder);
+        if (!Validate::isLoadedObject($order)) {
+            return false;
+        }
+
+        // Charger le client
+        $customer = new Customer($order->id_customer);
+        if (!Validate::isLoadedObject($customer)) {
+            return false;
+        }
+
+        // Préparer les variables du template
+        $templateVars = array(
+            '{firstname}' => $customer->firstname,
+            '{lastname}' => $customer->lastname,
+            '{order_name}' => $order->reference,
+            '{order_reference}' => $order->reference,
+            '{order_link}' => $this->context->link->getPageLink(
+                'order-detail',
+                true,
+                (int) $order->id_lang,
+                array('id_order' => $idOrder)
+            ),
+        );
+
+        // Envoyer l'email
+        return Mail::Send(
+            (int) $order->id_lang,
+            'orderinvoiceupload_notification',
+            $this->l('Une facture a été ajoutée à votre commande'),
+            $templateVars,
+            $customer->email,
+            $customer->firstname . ' ' . $customer->lastname,
+            null,
+            null,
+            null,
+            null,
+            dirname(__FILE__) . '/mails/',
+            false,
+            (int) $order->id_shop
         );
     }
 }
