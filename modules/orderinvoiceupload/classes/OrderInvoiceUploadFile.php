@@ -105,12 +105,12 @@ class OrderInvoiceUploadFile extends ObjectModel
             return null;
         }
 
+        // Note: Ne pas utiliser limit() avec getRow() car getRow() ajoute son propre LIMIT
         $sql = new DbQuery();
         $sql->select('*');
         $sql->from('order_invoice_upload');
         $sql->where('id_order = ' . $idOrder);
         $sql->orderBy('id_order_invoice_upload DESC');
-        $sql->limit(1);
 
         $result = Db::getInstance()->getRow($sql);
 
