@@ -1,13 +1,22 @@
 # Order Invoice Upload
 
-Module PrestaShop permettant de téléverser manuellement une facture PDF pour chaque commande dans le Back Office.
+Module PrestaShop permettant de téléverser manuellement une facture PDF pour chaque commande dans le Back Office, avec possibilité pour les clients de télécharger leurs factures depuis leur espace compte.
 
 ## Fonctionnalités
 
+### Back Office (Administration)
 - ✅ Téléversement de factures PDF pour chaque commande
 - ✅ Affichage dans la page de détail d'une commande
 - ✅ Téléchargement sécurisé des factures
 - ✅ Remplacement et suppression des factures
+
+### Front Office (Compte Client)
+- ✅ Affichage du bloc "Facture associée" sur la page de détail de commande
+- ✅ Téléchargement sécurisé par les clients connectés
+- ✅ Interface en lecture seule (aucun upload côté front)
+- ✅ Vérification que la commande appartient au client
+
+### Général
 - ✅ Compatible PrestaShop 1.7.6.5 à 1.7.8.11
 - ✅ Compatible PHP 7.2 à 7.4
 - ✅ Aucun override du cœur
@@ -91,9 +100,12 @@ orderinvoiceupload/
 │   └── OrderInvoiceUploadFile.php  # Classe helper
 │
 ├── controllers/
-│   └── admin/
+│   ├── admin/
+│   │   ├── index.php
+│   │   └── AdminOrderInvoiceUploadController.php  # Téléchargement admin
+│   └── front/
 │       ├── index.php
-│       └── AdminOrderInvoiceUploadController.php
+│       └── download.php            # Téléchargement client (sécurisé)
 │
 ├── sql/
 │   ├── index.php
@@ -102,12 +114,17 @@ orderinvoiceupload/
 │
 ├── views/
 │   ├── css/
-│   │   └── admin.css               # Styles Back Office
+│   │   ├── admin.css               # Styles Back Office
+│   │   └── front.css               # Styles Front Office
 │   ├── js/
 │   │   └── admin.js                # JavaScript Back Office
 │   └── templates/
-│       └── admin/
-│           └── order_invoice_block.tpl  # Template d'affichage
+│       ├── admin/
+│       │   └── order_invoice_block.tpl  # Template admin
+│       ├── front/
+│       │   └── error.tpl           # Page d'erreur front
+│       └── hook/
+│           └── order_invoice_front.tpl  # Bloc facture front
 │
 ├── uploads/                         # Dossier des factures (protégé)
 │   ├── index.php
@@ -132,21 +149,38 @@ Le module crée une table `ps_order_invoice_upload` avec les champs :
 
 ## Hooks utilisés
 
+### Back Office
+
 | Hook | Version PS | Description |
 |------|-----------|-------------|
 | `displayAdminOrder` | 1.7.6.x | Affichage dans la page commande |
 | `displayAdminOrderMain` | 1.7.7+ | Zone principale page commande |
-| `actionAdminControllerSetMedia` | Toutes | Chargement CSS/JS |
-| `displayBackOfficeHeader` | Toutes | Fallback CSS |
+| `actionAdminControllerSetMedia` | Toutes | Chargement CSS/JS admin |
+| `displayBackOfficeHeader` | Toutes | Fallback CSS admin |
+
+### Front Office
+
+| Hook | Version PS | Description |
+|------|-----------|-------------|
+| `displayOrderDetail` | Toutes | Bloc facture sur page commande client |
+| `displayHeader` | Toutes | Chargement CSS front |
 
 ## Sécurité
 
+### Back Office
 - ✅ Vérification du token admin pour toutes les actions
 - ✅ Validation du type MIME et de l'extension
 - ✅ Vérification des magic bytes PDF
 - ✅ Noms de fichiers hashés/uniques
 - ✅ Protection .htaccess du dossier uploads
 - ✅ Téléchargement via contrôleur sécurisé
+
+### Front Office
+- ✅ Vérification que le client est connecté
+- ✅ Vérification que la commande appartient au client
+- ✅ Téléchargement via contrôleur front sécurisé
+- ✅ Interface en lecture seule (aucun upload possible)
+- ✅ Chemin physique du fichier jamais exposé
 
 ## Configuration
 
