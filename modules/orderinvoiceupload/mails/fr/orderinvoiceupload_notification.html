@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Une facture a été ajoutée à votre commande</title>
+</head>
+<body>
+    <table style="width:100%;max-width:600px;margin:0 auto;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#333333;">
+        <tr>
+            <td style="padding:20px;">
+                <h1 style="color:#333333;font-size:24px;margin-bottom:20px;">Bonjour {firstname} {lastname},</h1>
+
+                <p style="margin-bottom:15px;">
+                    Une facture a été ajoutée à votre commande <strong>{order_reference}</strong>.
+                </p>
+
+                <p style="margin-bottom:15px;">
+                    Vous pouvez consulter et télécharger cette facture depuis votre espace client,
+                    dans le détail de votre commande.
+                </p>
+
+                <p style="margin-bottom:25px;">
+                    <a href="{order_link}"
+                       style="display:inline-block;padding:12px 24px;background-color:#2fb5d2;color:#ffffff;text-decoration:none;border-radius:4px;font-weight:bold;">
+                        Voir ma commande
+                    </a>
+                </p>
+
+                <p style="margin-bottom:15px;color:#666666;font-size:13px;">
+                    Si vous avez des questions concernant cette facture, n'hésitez pas à nous contacter.
+                </p>
+
+                <p style="margin-top:30px;padding-top:20px;border-top:1px solid #eeeeee;color:#888888;font-size:12px;">
+                    Ce message a été envoyé automatiquement. Merci de ne pas y répondre directement.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
