@@ -351,6 +351,9 @@ class LcbftForm extends Module
 
         $form = LcbftFormModel::getByCartId($idCart);
 
+        // Verifier si le formulaire est deja valide (signe)
+        $isFormValid = ($form && $form->acknowledged == 1);
+
         // Si pas de formulaire existant, pre-remplir avec les donnees client
         $customerData = array();
         if (!$form) {
@@ -373,6 +376,7 @@ class LcbftForm extends Module
         // Preparer les variables pour le template
         $this->context->smarty->assign(array(
             'lcbft_form' => $form,
+            'lcbft_form_valid' => $isFormValid,
             'lcbft_customer_data' => $customerData,
             'lcbft_id_cart' => $idCart,
             'lcbft_id_customer' => $idCustomer,

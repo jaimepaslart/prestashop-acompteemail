@@ -1,18 +1,27 @@
 {**
  * Template du formulaire LCB-FT dans le tunnel de commande
  *
- * Ce formulaire apparait apres la section "Informations personnelles"
+ * Ce formulaire apparait avant l'etape de paiement
  * et bloque la progression tant qu'il n'est pas signe.
  *
  * @author    Paul Bihr
  * @copyright 2025 Paul Bihr
  *}
 
-<div id="lcbft-form-container" class="lcbft-form-container card mb-3">
-    <div class="card-header lcbft-header">
+<div id="lcbft-form-container" class="lcbft-form-container card mb-3" data-form-valid="{if isset($lcbft_form_valid) && $lcbft_form_valid}1{else}0{/if}">
+    <div class="card-header lcbft-header {if isset($lcbft_form_valid) && $lcbft_form_valid}lcbft-header-valid{/if}">
         <h2 class="h4 mb-0">
-            <i class="material-icons">&#xE873;</i>
+            {if isset($lcbft_form_valid) && $lcbft_form_valid}
+                <i class="material-icons" style="color: #4caf50;">&#xE86C;</i>
+            {else}
+                <i class="material-icons" style="color: #ff9800;">&#xE002;</i>
+            {/if}
             {l s='FORMULAIRE LCB-FT' mod='lcbftform'}
+            {if isset($lcbft_form_valid) && $lcbft_form_valid}
+                <span class="badge badge-success ml-2">{l s='Signé' mod='lcbftform'}</span>
+            {else}
+                <span class="badge badge-warning ml-2">{l s='Requis' mod='lcbftform'}</span>
+            {/if}
         </h2>
         <p class="mb-0 small">
             {l s='Article L 561-16 du Code monétaire et financier' mod='lcbftform'}
@@ -20,6 +29,26 @@
     </div>
 
     <div class="card-body">
+        {* Si formulaire deja valide, afficher un resume *}
+        {if isset($lcbft_form_valid) && $lcbft_form_valid && isset($lcbft_form) && $lcbft_form}
+            <div class="alert alert-success">
+                <strong><i class="material-icons" style="vertical-align: middle;">&#xE86C;</i> {l s='Formulaire LCB-FT signé avec succès' mod='lcbftform'}</strong>
+                <p class="mb-0 mt-2">
+                    {l s='Signé par' mod='lcbftform'} <strong>{$lcbft_form->prenom|escape:'htmlall':'UTF-8'} {$lcbft_form->nom|escape:'htmlall':'UTF-8'}</strong>
+                    {l s='le' mod='lcbftform'} {$lcbft_form->signed_at|date_format:'%d/%m/%Y à %H:%M'|escape:'htmlall':'UTF-8'}
+                </p>
+            </div>
+            <p class="text-muted small">
+                <a href="#" id="lcbft-show-form-link">{l s='Afficher/modifier le formulaire' mod='lcbftform'}</a>
+            </p>
+            <div id="lcbft-form-wrapper" style="display: none;">
+        {else}
+            {* Alerte bloquante si non signe *}
+            <div class="alert alert-warning lcbft-blocking-alert">
+                <strong><i class="material-icons" style="vertical-align: middle;">&#xE002;</i> {l s='Action requise' mod='lcbftform'}</strong>
+                <p class="mb-0">{l s='Vous devez remplir et signer ce formulaire réglementaire pour pouvoir procéder au paiement.' mod='lcbftform'}</p>
+            </div>
+            <div id="lcbft-form-wrapper">
         {* Message d'introduction *}
         <div class="alert alert-info lcbft-intro">
             <p class="mb-2"><strong>{l s='Lutte contre le blanchiment et le financement du terrorisme' mod='lcbftform'}</strong></p>
@@ -437,16 +466,7 @@
                 </p>
             </div>
         </form>
-    </div>
-
-    {* Indicateur de statut *}
-    <div id="lcbft-status-indicator" class="lcbft-status {if isset($lcbft_form) && $lcbft_form && $lcbft_form->isComplete()}lcbft-status-complete{else}lcbft-status-pending{/if}">
-        {if isset($lcbft_form) && $lcbft_form && $lcbft_form->isComplete()}
-            <i class="material-icons">&#xE86C;</i>
-            <span>{l s='Formulaire LCB-FT signé' mod='lcbftform'}</span>
-        {else}
-            <i class="material-icons">&#xE002;</i>
-            <span>{l s='Formulaire LCB-FT requis' mod='lcbftform'}</span>
-        {/if}
+        </div>{* Fin lcbft-form-wrapper *}
+        {/if}{* Fin if lcbft_form_valid *}
     </div>
 </div>

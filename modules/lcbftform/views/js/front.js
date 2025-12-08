@@ -57,6 +57,8 @@
             this.elements.statusIndicator = document.getElementById('lcbft-status-indicator');
             this.elements.errorMessage = document.getElementById('lcbft-error-message');
             this.elements.successMessage = document.getElementById('lcbft-success-message');
+            this.elements.showFormLink = document.getElementById('lcbft-show-form-link');
+            this.elements.formWrapper = document.getElementById('lcbft-form-wrapper');
 
             // Récupérer la configuration
             if (typeof lcbftform_ajax_url !== 'undefined') {
@@ -66,15 +68,17 @@
                 this.config.validationError = lcbftform_validation_error;
             }
 
-            // Vérifier si déjà complet
-            this.config.isComplete = this.elements.statusIndicator &&
-                this.elements.statusIndicator.classList.contains('lcbft-status-complete');
+            // Vérifier si déjà complet via data-attribute
+            this.config.isComplete = this.elements.container.getAttribute('data-form-valid') === '1';
 
             // Attacher les événements
             this.bindEvents();
 
             // Initialiser les champs conditionnels
             this.initConditionalFields();
+
+            // Bloquer/débloquer les options de paiement
+            this.updatePaymentOptions();
 
             // Intercepter le checkout
             this.interceptCheckout();
@@ -91,6 +95,18 @@
                 this.elements.form.addEventListener('submit', function(e) {
                     e.preventDefault();
                     self.submitForm();
+                });
+            }
+
+            // Lien "Afficher/modifier le formulaire"
+            if (this.elements.showFormLink) {
+                this.elements.showFormLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (self.elements.formWrapper) {
+                        const isHidden = self.elements.formWrapper.style.display === 'none';
+                        self.elements.formWrapper.style.display = isHidden ? 'block' : 'none';
+                        this.textContent = isHidden ? 'Masquer le formulaire' : 'Afficher/modifier le formulaire';
+                    }
                 });
             }
 
@@ -253,6 +269,19 @@
                             '<span class="lcbft-signature-text">Lu et approuvé</span>' +
                             '<span class="lcbft-signature-name">' + formData.get('prenom') + ' ' + formData.get('nom') + '</span>' +
                             '<span class="lcbft-signature-date">' + self.escapeHtml(data.signature) + '</span>';
+                    }
+
+                    // Débloquer les options de paiement
+                    self.updatePaymentOptions();
+
+                    // Mettre à jour l'attribut data
+                    self.elements.container.setAttribute('data-form-valid', '1');
+
+                    // Recharger la page pour afficher le résumé
+                    if (data.is_complete) {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
                     }
                 } else {
                     self.showError(data.message);
@@ -519,6 +548,60 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        },
+
+        /**
+         * Bloquer/débloquer les options de paiement
+         */
+        updatePaymentOptions: function() {
+            const self = this;
+
+            // Sélectionner tous les boutons/options de paiement
+            const paymentOptions = document.querySelectorAll('.payment-options .payment-option, #payment-confirmation button, .js-payment-option-form');
+            const paymentConfirmBtn = document.querySelector('#payment-confirmation button');
+
+            if (this.config.isComplete) {
+                // Débloquer les options de paiement
+                paymentOptions.forEach(function(option) {
+                    option.style.pointerEvents = '';
+                    option.style.opacity = '';
+                    option.classList.remove('lcbft-blocked');
+                });
+
+                if (paymentConfirmBtn) {
+                    paymentConfirmBtn.disabled = false;
+                    paymentConfirmBtn.title = '';
+                }
+
+                // Supprimer le message de blocage s'il existe
+                const blockMessage = document.getElementById('lcbft-payment-block-message');
+                if (blockMessage) {
+                    blockMessage.remove();
+                }
+            } else {
+                // Bloquer les options de paiement
+                paymentOptions.forEach(function(option) {
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5';
+                    option.classList.add('lcbft-blocked');
+                });
+
+                if (paymentConfirmBtn) {
+                    paymentConfirmBtn.disabled = true;
+                    paymentConfirmBtn.title = 'Veuillez d\'abord remplir et signer le formulaire LCB-FT';
+                }
+
+                // Ajouter un message de blocage au-dessus des options de paiement
+                const paymentSection = document.querySelector('.payment-options');
+                if (paymentSection && !document.getElementById('lcbft-payment-block-message')) {
+                    const blockMessage = document.createElement('div');
+                    blockMessage.id = 'lcbft-payment-block-message';
+                    blockMessage.className = 'alert alert-danger mb-3';
+                    blockMessage.innerHTML = '<strong><i class="material-icons" style="vertical-align: middle; font-size: 18px;">&#xE14B;</i> Paiement bloqué</strong><br>' +
+                        'Vous devez remplir et signer le formulaire LCB-FT ci-dessus avant de pouvoir procéder au paiement.';
+                    paymentSection.parentNode.insertBefore(blockMessage, paymentSection);
+                }
+            }
         }
     };
 
