@@ -13,8 +13,16 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-// Charger TCPDF de PrestaShop
-require_once _PS_TOOL_DIR_ . 'tcpdf/tcpdf.php';
+// Charger TCPDF de PrestaShop (emplacement varie selon la version)
+if (file_exists(_PS_ROOT_DIR_ . '/vendor/tecnickcom/tcpdf/tcpdf.php')) {
+    // PrestaShop 1.7.x - TCPDF via Composer
+    require_once _PS_ROOT_DIR_ . '/vendor/tecnickcom/tcpdf/tcpdf.php';
+} elseif (file_exists(_PS_TOOL_DIR_ . 'tcpdf/tcpdf.php')) {
+    // PrestaShop 1.6.x / anciennes versions 1.7
+    require_once _PS_TOOL_DIR_ . 'tcpdf/tcpdf.php';
+} else {
+    throw new Exception('TCPDF library not found. Please check your PrestaShop installation.');
+}
 
 /**
  * Generateur de PDF pour les formulaires LCB-FT
