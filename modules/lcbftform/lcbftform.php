@@ -309,17 +309,15 @@ class LcbftForm extends Module
     }
 
     /**
-     * Hook displayPaymentTop - Affichage du formulaire LCB-FT avant le paiement
-     *
-     * C'est le hook principal pour afficher le formulaire dans le checkout.
-     * Il s'affiche juste avant les methodes de paiement.
+     * Hook displayPaymentTop - Desactive (utilise displayPersonalInformationBottom)
      *
      * @param array $params
      * @return string
      */
     public function hookDisplayPaymentTop($params)
     {
-        return $this->renderLcbftForm();
+        // Desactive - le formulaire s'affiche maintenant dans l'etape 1 via displayPersonalInformationBottom
+        return '';
     }
 
     /**
@@ -336,15 +334,16 @@ class LcbftForm extends Module
     }
 
     /**
-     * Hook displayPersonalInformationBottom - Desactive (utilise displayPaymentTop)
+     * Hook displayPersonalInformationBottom - Affichage du formulaire LCB-FT
+     *
+     * S'affiche en bas de l'etape 1 "Informations personnelles" (theme enfant Warehouse)
      *
      * @param array $params
      * @return string
      */
     public function hookDisplayPersonalInformationBottom($params)
     {
-        // Ne pas afficher ici - on utilise displayPaymentTop
-        return '';
+        return $this->renderLcbftForm();
     }
 
     /**
