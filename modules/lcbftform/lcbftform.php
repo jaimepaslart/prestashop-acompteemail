@@ -80,6 +80,7 @@ class LcbftForm extends Module
             && $this->registerHook('displayPersonalInformationTop')
             && $this->registerHook('displayLcbftFormStep')
             && $this->registerHook('displayLcbftFormStatus')
+            && $this->registerHook('displayLcbftCheckoutStep')
             && $this->registerHook('Header')
             && $this->registerHook('actionValidateOrder')
             && $this->registerHook('displayOrderDetail')
@@ -382,6 +383,47 @@ class LcbftForm extends Module
         }
 
         return '0';
+    }
+
+    /**
+     * Hook displayLcbftCheckoutStep - Affichage de l'etape complete LCB-FT
+     *
+     * Ce hook est appele par checkout-process.tpl pour inserer l'etape dediee
+     *
+     * @param array $params
+     * @return string
+     */
+    public function hookDisplayLcbftCheckoutStep($params)
+    {
+        // Position de l'etape (passee par le template)
+        $position = isset($params['position']) ? (int) $params['position'] : 2;
+
+        // Verifier le statut du formulaire
+        $isComplete = ($this->hookDisplayLcbftFormStatus($params) === '1');
+
+        // Verifier si l'etape precedente (personal-info) est complete
+        // On considere qu'elle est complete si le client est connecte
+        $previousStepComplete = $this->context->customer->isLogged();
+
+        // Determiner l'etat de l'etape
+        $stepIsReachable = $previousStepComplete;
+        $stepIsComplete = $isComplete;
+        $stepIsCurrent = $stepIsReachable && !$stepIsComplete;
+
+        // Recuperer le contenu du formulaire
+        $formContent = $this->renderLcbftForm();
+
+        // Assigner les variables Smarty
+        $this->context->smarty->assign(array(
+            'lcbft_position' => $position,
+            'lcbft_step_is_current' => $stepIsCurrent,
+            'lcbft_step_is_reachable' => $stepIsReachable,
+            'lcbft_step_is_complete' => $stepIsComplete,
+            'lcbft_form_content' => $formContent,
+        ));
+
+        // Rendre le template de l'etape
+        return $this->display(__FILE__, 'views/templates/hook/lcbft-checkout-step.tpl');
     }
 
     /**
