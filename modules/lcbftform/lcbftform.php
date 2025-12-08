@@ -75,6 +75,7 @@ class LcbftForm extends Module
         // Installer le module et enregistrer les hooks
         return parent::install()
             // Hooks Front-Office Checkout
+            && $this->registerHook('displayPaymentTop')
             && $this->registerHook('displayPersonalInformationBottom')
             && $this->registerHook('displayPersonalInformationTop')
             && $this->registerHook('Header')
@@ -292,6 +293,20 @@ class LcbftForm extends Module
     }
 
     /**
+     * Hook displayPaymentTop - Affichage du formulaire LCB-FT avant le paiement
+     *
+     * C'est le hook principal pour afficher le formulaire dans le checkout.
+     * Il s'affiche juste avant les methodes de paiement.
+     *
+     * @param array $params
+     * @return string
+     */
+    public function hookDisplayPaymentTop($params)
+    {
+        return $this->renderLcbftForm();
+    }
+
+    /**
      * Hook displayPersonalInformationTop - Fallback pour affichage formulaire
      *
      * @param array $params
@@ -299,20 +314,31 @@ class LcbftForm extends Module
      */
     public function hookDisplayPersonalInformationTop($params)
     {
-        // Utiliser le meme rendu que displayPersonalInformationBottom
-        return $this->hookDisplayPersonalInformationBottom($params);
+        // Ne pas afficher ici si on utilise displayPaymentTop
+        // Pour eviter d'afficher le formulaire deux fois
+        return '';
     }
 
     /**
-     * Hook displayPersonalInformationBottom - Affichage du formulaire LCB-FT
-     *
-     * Ce hook s'affiche APRES la section "Informations personnelles" du checkout.
-     * C'est ici que le formulaire LCB-FT est injecte.
+     * Hook displayPersonalInformationBottom - Desactive (utilise displayPaymentTop)
      *
      * @param array $params
      * @return string
      */
     public function hookDisplayPersonalInformationBottom($params)
+    {
+        // Ne pas afficher ici - on utilise displayPaymentTop
+        return '';
+    }
+
+    /**
+     * Rendu du formulaire LCB-FT
+     *
+     * Methode centralisee pour afficher le formulaire.
+     *
+     * @return string
+     */
+    protected function renderLcbftForm()
     {
         // Verifier que le client est connecte
         if (!$this->context->customer->isLogged()) {
