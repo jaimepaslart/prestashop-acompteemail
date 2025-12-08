@@ -41,14 +41,17 @@
             <p class="text-muted small">
                 <a href="#" id="lcbft-show-form-link">{l s='Afficher/modifier le formulaire' mod='lcbftform'}</a>
             </p>
-            <div id="lcbft-form-wrapper" style="display: none;">
         {else}
             {* Alerte bloquante si non signe *}
             <div class="alert alert-warning lcbft-blocking-alert">
                 <strong><i class="material-icons" style="vertical-align: middle;">&#xE002;</i> {l s='Action requise' mod='lcbftform'}</strong>
                 <p class="mb-0">{l s='Vous devez remplir et signer ce formulaire réglementaire pour pouvoir procéder au paiement.' mod='lcbftform'}</p>
             </div>
-            <div id="lcbft-form-wrapper">
+        {/if}
+
+        {* Wrapper du formulaire - cache si deja signe *}
+        <div id="lcbft-form-wrapper" style="{if isset($lcbft_form_valid) && $lcbft_form_valid}display: none;{/if}">
+
         {* Message d'introduction *}
         <div class="alert alert-info lcbft-intro">
             <p class="mb-2"><strong>{l s='Lutte contre le blanchiment et le financement du terrorisme' mod='lcbftform'}</strong></p>
@@ -78,7 +81,7 @@
 
                 <div class="row">
                     <div class="col-md-3 form-group">
-                        <label>{l s='Civilité' mod='lcbftform'} <span class="required">*</span></label>
+                        <label>{l s='Civilité' mod='lcbftform'}</label>
                         <div class="lcbft-radio-group">
                             <label class="lcbft-radio">
                                 <input type="radio" name="civilite" value="Mme"
@@ -467,6 +470,5 @@
             </div>
         </form>
         </div>{* Fin lcbft-form-wrapper *}
-        {/if}{* Fin if lcbft_form_valid *}
     </div>
 </div>
