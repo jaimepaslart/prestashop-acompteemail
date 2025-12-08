@@ -78,6 +78,8 @@ class LcbftForm extends Module
             && $this->registerHook('displayPaymentTop')
             && $this->registerHook('displayPersonalInformationBottom')
             && $this->registerHook('displayPersonalInformationTop')
+            && $this->registerHook('displayLcbftFormStep')
+            && $this->registerHook('displayLcbftFormStatus')
             && $this->registerHook('Header')
             && $this->registerHook('actionValidateOrder')
             && $this->registerHook('displayOrderDetail')
@@ -334,16 +336,52 @@ class LcbftForm extends Module
     }
 
     /**
-     * Hook displayPersonalInformationBottom - Affichage du formulaire LCB-FT
-     *
-     * S'affiche en bas de l'etape 1 "Informations personnelles" (theme enfant Warehouse)
+     * Hook displayPersonalInformationBottom - Desactive (utilise etape dediee)
      *
      * @param array $params
      * @return string
      */
     public function hookDisplayPersonalInformationBottom($params)
     {
+        // Desactive - le formulaire s'affiche maintenant dans l'etape dediee
+        return '';
+    }
+
+    /**
+     * Hook displayLcbftFormStep - Affichage du formulaire dans l'etape dediee
+     *
+     * Ce hook est appele par le template lcbft-step.tpl du theme enfant
+     *
+     * @param array $params
+     * @return string
+     */
+    public function hookDisplayLcbftFormStep($params)
+    {
         return $this->renderLcbftForm();
+    }
+
+    /**
+     * Hook displayLcbftFormStatus - Retourne le statut du formulaire
+     *
+     * Retourne '1' si le formulaire est complet et signe, '0' sinon
+     *
+     * @param array $params
+     * @return string
+     */
+    public function hookDisplayLcbftFormStatus($params)
+    {
+        if (!$this->context->customer->isLogged()) {
+            return '0';
+        }
+
+        $idCart = (int) $this->context->cart->id;
+        $form = LcbftFormModel::getByCartId($idCart);
+
+        if ($form && $form->isComplete()) {
+            return '1';
+        }
+
+        return '0';
     }
 
     /**

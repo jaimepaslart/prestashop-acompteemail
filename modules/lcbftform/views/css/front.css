@@ -1,46 +1,161 @@
 /**
  * CSS Front-Office pour le module LCB-FT Form
  *
- * Styles pour le formulaire dans le tunnel de commande
- * Compatible theme classic PrestaShop 1.7.6.5
+ * Design moderne et mobile-friendly
+ * Compatible theme Warehouse/Classic PrestaShop 1.7.6.5
  *
  * @author    Paul Bihr
  * @copyright 2025 Paul Bihr
  */
 
 /* =========================================================================
+   VARIABLES CSS
+   ========================================================================= */
+
+:root {
+    --lcbft-primary: #2563eb;
+    --lcbft-primary-dark: #1d4ed8;
+    --lcbft-primary-light: #dbeafe;
+    --lcbft-secondary: #64748b;
+    --lcbft-success: #22c55e;
+    --lcbft-success-light: #dcfce7;
+    --lcbft-warning: #f59e0b;
+    --lcbft-warning-light: #fef3c7;
+    --lcbft-danger: #ef4444;
+    --lcbft-danger-light: #fee2e2;
+    --lcbft-border: #e2e8f0;
+    --lcbft-bg: #f8fafc;
+    --lcbft-text: #1e293b;
+    --lcbft-text-muted: #64748b;
+    --lcbft-radius: 12px;
+    --lcbft-radius-sm: 8px;
+    --lcbft-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --lcbft-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --lcbft-transition: all 0.2s ease;
+}
+
+/* =========================================================================
+   ETAPE DEDIEE LCB-FT
+   ========================================================================= */
+
+#checkout-lcbft-step {
+    transition: var(--lcbft-transition);
+}
+
+#checkout-lcbft-step .step-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: var(--lcbft-transition);
+}
+
+#checkout-lcbft-step .step-title:hover {
+    background: var(--lcbft-bg);
+}
+
+#checkout-lcbft-step .step-number {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--lcbft-primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+#checkout-lcbft-step.-complete .step-number {
+    background: var(--lcbft-success);
+}
+
+#checkout-lcbft-step.-current .step-number {
+    background: var(--lcbft-primary);
+    box-shadow: 0 0 0 4px var(--lcbft-primary-light);
+}
+
+#checkout-lcbft-step .content {
+    padding: 0 20px 20px;
+}
+
+/* Bouton continuer dans l'etape */
+#lcbft-continue-btn {
+    background: linear-gradient(135deg, var(--lcbft-success) 0%, #16a34a 100%);
+    border: none;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--lcbft-radius-sm);
+    color: white;
+    transition: var(--lcbft-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#lcbft-continue-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--lcbft-shadow-lg);
+}
+
+/* =========================================================================
    CONTENEUR PRINCIPAL
    ========================================================================= */
 
 .lcbft-form-container {
-    margin: 20px 0;
-    border: 2px solid #2fb5d2;
-    border-radius: 4px;
+    margin: 0;
+    border: none;
+    border-radius: var(--lcbft-radius);
     background: #fff;
     position: relative;
+    box-shadow: var(--lcbft-shadow);
+    overflow: hidden;
 }
 
 .lcbft-form-container .card-header.lcbft-header {
-    background: linear-gradient(135deg, #2fb5d2 0%, #1a8a9e 100%);
+    background: linear-gradient(135deg, var(--lcbft-primary) 0%, var(--lcbft-primary-dark) 100%);
     color: #fff;
-    padding: 15px 20px;
+    padding: 20px 24px;
     border-bottom: none;
+}
+
+.lcbft-form-container .lcbft-header.lcbft-header-valid {
+    background: linear-gradient(135deg, var(--lcbft-success) 0%, #16a34a 100%);
 }
 
 .lcbft-form-container .lcbft-header h2 {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.25rem;
-    font-weight: 600;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.5px;
 }
 
 .lcbft-form-container .lcbft-header h2 .material-icons {
-    font-size: 24px;
+    font-size: 28px;
+}
+
+.lcbft-form-container .lcbft-header h2 .badge {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.lcbft-form-container .lcbft-header p {
+    margin: 8px 0 0;
+    opacity: 0.9;
+    font-size: 0.85rem;
 }
 
 .lcbft-form-container .card-body {
-    padding: 20px;
+    padding: 24px;
 }
 
 /* =========================================================================
@@ -48,9 +163,33 @@
    ========================================================================= */
 
 .lcbft-intro {
-    background: #e3f2fd;
-    border-color: #2196f3;
-    margin-bottom: 25px;
+    background: var(--lcbft-primary-light);
+    border: 1px solid var(--lcbft-primary);
+    border-left: 4px solid var(--lcbft-primary);
+    border-radius: var(--lcbft-radius-sm);
+    margin-bottom: 24px;
+    padding: 16px 20px;
+}
+
+.lcbft-intro p {
+    margin: 0;
+}
+
+.lcbft-intro p.mb-2 {
+    margin-bottom: 8px !important;
+}
+
+/* Alerte bloquante */
+.lcbft-blocking-alert {
+    background: var(--lcbft-warning-light);
+    border: 1px solid var(--lcbft-warning);
+    border-left: 4px solid var(--lcbft-warning);
+    border-radius: var(--lcbft-radius-sm);
+    padding: 16px 20px;
+}
+
+.lcbft-blocking-alert .material-icons {
+    color: var(--lcbft-warning);
 }
 
 /* =========================================================================
@@ -58,45 +197,56 @@
    ========================================================================= */
 
 .lcbft-section {
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    border: 1px solid var(--lcbft-border);
+    border-radius: var(--lcbft-radius-sm);
     padding: 20px;
     margin-bottom: 20px;
-    background: #fafafa;
+    background: #fff;
+    transition: var(--lcbft-transition);
+}
+
+.lcbft-section:hover {
+    border-color: #cbd5e1;
 }
 
 .lcbft-legend {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #232323;
-    background: #fff;
-    padding: 5px 15px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--lcbft-text);
+    background: linear-gradient(135deg, var(--lcbft-bg) 0%, #fff 100%);
+    padding: 8px 16px;
     margin-left: -10px;
-    border-radius: 3px;
-    display: inline-block;
-    border: 1px solid #ddd;
+    margin-top: -10px;
+    border-radius: var(--lcbft-radius-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--lcbft-border);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .lcbft-legend-sub {
     font-weight: 400;
-    font-size: 0.85em;
-    color: #666;
+    font-size: 0.75em;
+    color: var(--lcbft-text-muted);
+    text-transform: none;
 }
 
 .lcbft-subsection {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #1a8a9e;
-    margin: 20px 0 15px;
+    color: var(--lcbft-primary);
+    margin: 24px 0 16px;
     padding-bottom: 8px;
-    border-bottom: 2px solid #2fb5d2;
+    border-bottom: 2px solid var(--lcbft-primary-light);
 }
 
 .lcbft-subsection-small {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;
+    color: var(--lcbft-text);
+    margin-bottom: 12px;
 }
 
 /* =========================================================================
@@ -104,40 +254,50 @@
    ========================================================================= */
 
 .lcbft-form .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
 .lcbft-form label {
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--lcbft-text);
+    margin-bottom: 6px;
     display: block;
+    font-size: 0.9rem;
 }
 
 .lcbft-form .form-control {
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    padding: 8px 12px;
-    font-size: 0.95rem;
+    border: 2px solid var(--lcbft-border);
+    border-radius: var(--lcbft-radius-sm);
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: var(--lcbft-transition);
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .lcbft-form .form-control:focus {
-    border-color: #2fb5d2;
-    box-shadow: 0 0 0 0.2rem rgba(47, 181, 210, 0.25);
+    border-color: var(--lcbft-primary);
+    box-shadow: 0 0 0 3px var(--lcbft-primary-light);
+    outline: none;
+}
+
+.lcbft-form .form-control.is-invalid {
+    border-color: var(--lcbft-danger);
+    background: var(--lcbft-danger-light);
 }
 
 .lcbft-form .required {
-    color: #dc3545;
-    font-weight: bold;
+    color: var(--lcbft-danger);
+    font-weight: 700;
 }
 
 /* =========================================================================
-   RADIO BUTTONS ET CHECKBOXES
+   RADIO BUTTONS ET CHECKBOXES - STYLE MODERNE
    ========================================================================= */
 
 .lcbft-radio-group {
     display: flex;
-    gap: 20px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
@@ -145,66 +305,74 @@
 .lcbft-checkbox {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     cursor: pointer;
-    padding: 5px 0;
+    padding: 8px 0;
+    position: relative;
 }
 
 .lcbft-radio input[type="radio"],
 .lcbft-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
+    accent-color: var(--lcbft-primary);
+    flex-shrink: 0;
 }
 
 .lcbft-radio span,
 .lcbft-checkbox span {
-    font-weight: 400;
+    font-weight: 500;
+    color: var(--lcbft-text);
+    line-height: 1.4;
 }
 
+/* Style carte pour les options */
 .lcbft-radio-block {
-    display: block;
-    padding: 10px 15px;
-    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
     background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 3px;
+    border: 2px solid var(--lcbft-border);
+    border-radius: var(--lcbft-radius-sm);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--lcbft-transition);
 }
 
 .lcbft-radio-block:hover {
-    border-color: #2fb5d2;
-    background: #f0fafc;
+    border-color: var(--lcbft-primary);
+    background: var(--lcbft-primary-light);
+}
+
+.lcbft-radio-block input[type="radio"]:checked ~ span,
+.lcbft-radio-block:has(input[type="radio"]:checked) {
+    border-color: var(--lcbft-primary);
+    background: var(--lcbft-primary-light);
 }
 
 .lcbft-radio-block input[type="radio"]:checked + span {
     font-weight: 600;
-    color: #1a8a9e;
+    color: var(--lcbft-primary-dark);
 }
 
 .lcbft-checkbox-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
 }
 
 .lcbft-checkbox-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .lcbft-patrimoine-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
-@media (max-width: 768px) {
-    .lcbft-patrimoine-options {
-        grid-template-columns: 1fr;
-    }
+    gap: 12px;
 }
 
 /* =========================================================================
@@ -213,22 +381,30 @@
 
 .lcbft-comments-table {
     font-size: 0.9rem;
+    border-radius: var(--lcbft-radius-sm);
+    overflow: hidden;
 }
 
 .lcbft-comments-table th {
-    background: #f5f5f5;
+    background: var(--lcbft-bg);
     font-weight: 600;
-    padding: 10px;
+    padding: 12px;
+    font-size: 0.85rem;
+    color: var(--lcbft-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .lcbft-comments-table td {
-    padding: 5px;
+    padding: 8px;
     vertical-align: middle;
 }
 
 .lcbft-comments-table .form-control-sm {
-    font-size: 0.85rem;
-    padding: 5px 8px;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+    border: 2px solid var(--lcbft-border);
+    border-radius: var(--lcbft-radius-sm);
 }
 
 /* =========================================================================
@@ -236,16 +412,23 @@
    ========================================================================= */
 
 .lcbft-signature-section {
-    background: #fff9e6;
-    border-color: #ffc107;
+    background: linear-gradient(135deg, var(--lcbft-warning-light) 0%, #fff 100%);
+    border-color: var(--lcbft-warning);
+    border-width: 2px;
 }
 
 .lcbft-acknowledgment {
     background: #fff;
-    border: 2px solid #dc3545;
-    border-radius: 4px;
-    padding: 15px 20px;
-    margin: 20px 0;
+    border: 3px solid var(--lcbft-danger);
+    border-radius: var(--lcbft-radius-sm);
+    padding: 20px;
+    margin: 24px 0;
+    transition: var(--lcbft-transition);
+}
+
+.lcbft-acknowledgment:has(input:checked) {
+    border-color: var(--lcbft-success);
+    background: var(--lcbft-success-light);
 }
 
 .lcbft-checkbox-required {
@@ -254,58 +437,64 @@
 
 .lcbft-acknowledgment-text {
     font-size: 1rem;
+    line-height: 1.5;
 }
 
 .lcbft-signature-box {
-    border: 2px solid #333;
-    border-radius: 4px;
-    padding: 15px;
+    border: 2px dashed var(--lcbft-secondary);
+    border-radius: var(--lcbft-radius-sm);
+    padding: 20px;
     background: #fff;
-    min-height: 100px;
+    min-height: 120px;
 }
 
 .lcbft-signature-label {
     font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
+    color: var(--lcbft-text);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--lcbft-border);
+    font-size: 0.9rem;
 }
 
 .lcbft-signature-label small {
     font-weight: 400;
-    color: #666;
+    color: var(--lcbft-text-muted);
 }
 
 .lcbft-signature-content {
     text-align: center;
-    padding: 10px;
+    padding: 16px;
 }
 
 .lcbft-signature-placeholder {
-    color: #999;
+    color: var(--lcbft-text-muted);
     font-style: italic;
+    font-size: 0.95rem;
 }
 
 .lcbft-signature-text {
     display: block;
     font-style: italic;
-    color: #333;
-    margin-bottom: 5px;
+    color: var(--lcbft-text);
+    margin-bottom: 8px;
+    font-size: 1rem;
 }
 
 .lcbft-signature-name {
     display: block;
-    font-size: 1.5rem;
-    font-family: 'Brush Script MT', cursive, sans-serif;
-    color: #1a237e;
-    margin: 10px 0;
+    font-size: 2rem;
+    font-family: 'Brush Script MT', 'Segoe Script', cursive, sans-serif;
+    color: var(--lcbft-primary-dark);
+    margin: 12px 0;
+    line-height: 1.2;
 }
 
 .lcbft-signature-date {
     display: block;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--lcbft-text-muted);
+    margin-top: 8px;
 }
 
 /* =========================================================================
@@ -314,38 +503,52 @@
 
 .lcbft-submit-section {
     text-align: center;
-    padding-top: 20px;
-    border-top: 2px solid #eee;
-    margin-top: 20px;
+    padding-top: 24px;
+    border-top: 2px solid var(--lcbft-border);
+    margin-top: 24px;
 }
 
 #lcbft-submit-btn {
-    background: linear-gradient(135deg, #2fb5d2 0%, #1a8a9e 100%);
+    background: linear-gradient(135deg, var(--lcbft-primary) 0%, var(--lcbft-primary-dark) 100%);
     border: none;
-    padding: 12px 30px;
+    padding: 16px 40px;
     font-size: 1.1rem;
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 12px;
+    border-radius: var(--lcbft-radius-sm);
+    color: white;
+    cursor: pointer;
+    transition: var(--lcbft-transition);
+    min-width: 280px;
 }
 
 #lcbft-submit-btn:hover {
-    background: linear-gradient(135deg, #1a8a9e 0%, #147085 100%);
+    transform: translateY(-2px);
+    box-shadow: var(--lcbft-shadow-lg);
+}
+
+#lcbft-submit-btn:active {
+    transform: translateY(0);
 }
 
 #lcbft-submit-btn:disabled {
-    background: #ccc;
+    background: #94a3b8;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 #lcbft-submit-btn .material-icons {
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .lcbft-mandatory-notice {
-    margin-top: 15px;
+    margin-top: 16px;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--lcbft-text-muted);
 }
 
 /* =========================================================================
@@ -354,8 +557,20 @@
 
 #lcbft-error-message,
 #lcbft-success-message {
-    margin-bottom: 15px;
+    margin-bottom: 16px;
     text-align: left;
+    border-radius: var(--lcbft-radius-sm);
+    padding: 16px 20px;
+}
+
+#lcbft-error-message {
+    background: var(--lcbft-danger-light);
+    border-left: 4px solid var(--lcbft-danger);
+}
+
+#lcbft-success-message {
+    background: var(--lcbft-success-light);
+    border-left: 4px solid var(--lcbft-success);
 }
 
 /* =========================================================================
@@ -364,25 +579,26 @@
 
 .lcbft-status {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 20px;
+    right: 20px;
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 5px 12px;
-    border-radius: 20px;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 24px;
     font-size: 0.85rem;
     font-weight: 600;
+    box-shadow: var(--lcbft-shadow);
 }
 
 .lcbft-status-pending {
-    background: #fff3cd;
-    color: #856404;
+    background: var(--lcbft-warning-light);
+    color: #92400e;
 }
 
 .lcbft-status-complete {
-    background: #d4edda;
-    color: #155724;
+    background: var(--lcbft-success-light);
+    color: #166534;
 }
 
 .lcbft-status .material-icons {
@@ -394,79 +610,267 @@
    ========================================================================= */
 
 .lcbft-detail-field {
-    padding-left: 25px;
-    border-left: 3px solid #2fb5d2;
-    margin-top: 10px;
+    padding-left: 20px;
+    border-left: 3px solid var(--lcbft-primary);
+    margin-top: 12px;
+    margin-left: 10px;
 }
 
 /* =========================================================================
-   PAGE COMPTE CLIENT - BLOC COMMANDE
+   PAGES COMPTE CLIENT
    ========================================================================= */
 
 .lcbft-order-detail-block {
-    border-left: 4px solid #2fb5d2;
+    border-left: 4px solid var(--lcbft-primary);
+    border-radius: var(--lcbft-radius-sm);
+    box-shadow: var(--lcbft-shadow);
 }
 
 .lcbft-order-detail-block .card-header {
-    background: #f8f9fa;
+    background: var(--lcbft-bg);
+    padding: 16px 20px;
 }
 
 .lcbft-order-detail-block .card-header h3 {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-size: 1rem;
 }
 
 .lcbft-order-detail-block .badge-success {
-    background: #28a745;
+    background: var(--lcbft-success);
 }
 
-/* =========================================================================
-   PAGE CONFIRMATION COMMANDE
-   ========================================================================= */
-
+/* Confirmation commande */
 .lcbft-confirmation-block {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 16px;
+    padding: 16px;
+    background: var(--lcbft-success-light);
+    border-radius: var(--lcbft-radius-sm);
 }
 
 .lcbft-confirmation-block p {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    margin: 0;
 }
 
 .lcbft-confirmation-block .material-icons {
-    font-size: 20px;
+    font-size: 22px;
+    color: var(--lcbft-success);
 }
 
 /* =========================================================================
-   RESPONSIVE
+   ANIMATIONS
    ========================================================================= */
 
-@media (max-width: 576px) {
+@keyframes lcbft-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.lcbft-form-container:has(.lcbft-blocking-alert) {
+    animation: lcbft-pulse 2s ease-in-out infinite;
+}
+
+@keyframes lcbft-shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.lcbft-form-container.lcbft-shake {
+    animation: lcbft-shake 0.5s ease-in-out;
+}
+
+/* =========================================================================
+   RESPONSIVE - TABLETTE
+   ========================================================================= */
+
+@media (max-width: 992px) {
+    .lcbft-patrimoine-options {
+        grid-template-columns: 1fr;
+    }
+
+    .lcbft-checkbox-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* =========================================================================
+   RESPONSIVE - MOBILE
+   ========================================================================= */
+
+@media (max-width: 768px) {
     .lcbft-form-container .card-body {
-        padding: 15px;
+        padding: 16px;
+    }
+
+    .lcbft-form-container .lcbft-header {
+        padding: 16px;
+    }
+
+    .lcbft-form-container .lcbft-header h2 {
+        font-size: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .lcbft-section {
-        padding: 15px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .lcbft-legend {
+        font-size: 0.8rem;
+        padding: 6px 12px;
     }
 
     .lcbft-checkbox-grid {
         grid-template-columns: 1fr;
     }
 
+    .lcbft-radio-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
     .lcbft-status {
-        position: static;
-        margin: 10px 20px;
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 0 0 16px;
         justify-content: center;
     }
 
     #lcbft-submit-btn {
         width: 100%;
+        min-width: auto;
+        padding: 14px 24px;
+        font-size: 1rem;
+    }
+
+    .lcbft-signature-name {
+        font-size: 1.5rem;
+    }
+
+    /* Tableau responsive */
+    .lcbft-comments-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Inputs plus grands pour touch */
+    .lcbft-form .form-control {
+        padding: 14px 16px;
+        font-size: 16px; /* Evite zoom iOS */
+    }
+
+    .lcbft-radio input[type="radio"],
+    .lcbft-checkbox input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Etape dediee mobile */
+    #checkout-lcbft-step .content {
+        padding: 0 16px 16px;
+    }
+
+    #lcbft-continue-btn {
+        width: 100%;
         justify-content: center;
+    }
+}
+
+/* =========================================================================
+   RESPONSIVE - PETIT MOBILE
+   ========================================================================= */
+
+@media (max-width: 480px) {
+    .lcbft-form-container .card-body {
+        padding: 12px;
+    }
+
+    .lcbft-section {
+        padding: 12px;
+    }
+
+    .lcbft-form label {
+        font-size: 0.85rem;
+    }
+
+    .lcbft-acknowledgment {
+        padding: 14px;
+    }
+
+    .lcbft-acknowledgment-text {
+        font-size: 0.9rem;
+    }
+
+    .lcbft-signature-box {
+        padding: 14px;
+    }
+
+    .lcbft-intro {
+        padding: 12px 14px;
+    }
+
+    /* Row spacing mobile */
+    .row {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    .row > [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+/* =========================================================================
+   FOCUS VISIBLE - ACCESSIBILITE
+   ========================================================================= */
+
+.lcbft-form .form-control:focus-visible,
+.lcbft-radio input:focus-visible,
+.lcbft-checkbox input:focus-visible,
+#lcbft-submit-btn:focus-visible,
+#lcbft-continue-btn:focus-visible {
+    outline: 3px solid var(--lcbft-primary);
+    outline-offset: 2px;
+}
+
+/* =========================================================================
+   DARK MODE SUPPORT (optionnel)
+   ========================================================================= */
+
+@media (prefers-color-scheme: dark) {
+    /* Si le site supporte le dark mode, ces styles s'appliqueront */
+}
+
+/* =========================================================================
+   PRINT STYLES
+   ========================================================================= */
+
+@media print {
+    .lcbft-form-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    #lcbft-submit-btn,
+    .lcbft-status {
+        display: none;
     }
 }

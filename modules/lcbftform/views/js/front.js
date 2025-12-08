@@ -46,8 +46,11 @@
         init: function() {
             // Récupérer les éléments DOM
             this.elements.container = document.getElementById('lcbft-form-container');
-            if (!this.elements.container) {
-                return; // Pas sur la page de checkout
+            this.elements.lcbftStep = document.getElementById('checkout-lcbft-step');
+
+            // Pas sur la page de checkout si ni le container ni l'étape n'existent
+            if (!this.elements.container && !this.elements.lcbftStep) {
+                return;
             }
 
             this.elements.form = document.getElementById('lcbft-form');
@@ -59,6 +62,7 @@
             this.elements.successMessage = document.getElementById('lcbft-success-message');
             this.elements.showFormLink = document.getElementById('lcbft-show-form-link');
             this.elements.formWrapper = document.getElementById('lcbft-form-wrapper');
+            this.elements.continueBtn = document.getElementById('lcbft-continue-btn');
 
             // Récupérer la configuration
             if (typeof lcbftform_ajax_url !== 'undefined') {
@@ -68,8 +72,13 @@
                 this.config.validationError = lcbftform_validation_error;
             }
 
-            // Vérifier si déjà complet via data-attribute
-            this.config.isComplete = this.elements.container.getAttribute('data-form-valid') === '1';
+            // Vérifier si déjà complet via data-attribute ou classe CSS
+            if (this.elements.container) {
+                this.config.isComplete = this.elements.container.getAttribute('data-form-valid') === '1';
+            }
+            if (this.elements.lcbftStep && this.elements.lcbftStep.classList.contains('-complete')) {
+                this.config.isComplete = true;
+            }
 
             // Attacher les événements
             this.bindEvents();
@@ -77,11 +86,14 @@
             // Initialiser les champs conditionnels
             this.initConditionalFields();
 
-            // Bloquer/débloquer les options de paiement
-            this.updatePaymentOptions();
-
-            // Intercepter le checkout
-            this.interceptCheckout();
+            // Gérer l'étape dédiée LCB-FT (si elle existe)
+            if (this.elements.lcbftStep) {
+                this.handleLcbftStep();
+            } else {
+                // Mode legacy : blocage des paiements
+                this.updatePaymentOptions();
+                this.interceptCheckout();
+            }
         },
 
         /**
@@ -351,7 +363,7 @@
                 // Vérifier si c'est un bouton de progression checkout
                 const target = e.target.closest('.continue, [data-link-action="register-new-customer"], .checkout-step button[type="submit"]');
 
-                if (target && !self.config.isComplete) {
+                if (target) {
                     // Vérifier si on est sur une étape après personal-information
                     const checkoutSteps = document.querySelectorAll('.checkout-step');
                     let personalInfoPassed = false;
@@ -365,21 +377,19 @@
                         }
                     });
 
-                    // Si on essaie de continuer et le formulaire n'est pas complet
-                    if (personalInfoPassed || target.closest('#checkout-personal-information-step')) {
-                        // Vérifier le statut du formulaire
-                        self.checkFormStatus(function(isComplete) {
-                            if (!isComplete) {
-                                e.preventDefault();
-                                e.stopPropagation();
+                    // Si on essaie de continuer depuis l'étape personal-information et formulaire non complet
+                    if ((personalInfoPassed || target.closest('#checkout-personal-information-step')) && !self.config.isComplete) {
+                        // Bloquer IMMEDIATEMENT de façon synchrone
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                                // Afficher un message d'erreur
-                                self.showCheckoutBlockMessage();
+                        // Afficher un message d'erreur
+                        self.showCheckoutBlockMessage();
 
-                                // Scroller vers le formulaire
-                                self.elements.container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
-                        });
+                        // Scroller vers le formulaire
+                        if (self.elements.container) {
+                            self.elements.container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
                     }
                 }
             }, true);
@@ -551,7 +561,7 @@
         },
 
         /**
-         * Bloquer/débloquer les options de paiement
+         * Bloquer/débloquer les options de paiement (mode legacy)
          */
         updatePaymentOptions: function() {
             const self = this;
@@ -602,6 +612,123 @@
                     paymentSection.parentNode.insertBefore(blockMessage, paymentSection);
                 }
             }
+        },
+
+        /**
+         * Gérer l'étape dédiée LCB-FT
+         *
+         * Cette méthode gère la logique de l'étape dédiée dans le tunnel de commande
+         */
+        handleLcbftStep: function() {
+            const self = this;
+            const lcbftStep = this.elements.lcbftStep;
+            const continueBtn = this.elements.continueBtn;
+
+            // Gérer le clic sur "Continuer" après signature
+            if (continueBtn) {
+                continueBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    self.goToNextStep();
+                });
+            }
+
+            // Intercepter les clics sur le titre de l'étape pour la rendre cliquable
+            const stepTitle = lcbftStep.querySelector('.step-title');
+            if (stepTitle) {
+                stepTitle.style.cursor = 'pointer';
+                stepTitle.addEventListener('click', function() {
+                    if (lcbftStep.classList.contains('-complete') || lcbftStep.classList.contains('-reachable')) {
+                        self.activateLcbftStep();
+                    }
+                });
+            }
+
+            // Intercepter la progression depuis l'étape personal-information
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('#checkout-personal-information-step .continue');
+                if (target && !self.config.isComplete) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Activer l'étape LCB-FT au lieu de passer aux adresses
+                    self.activateLcbftStep();
+                }
+            }, true);
+
+            // Observer les changements d'étape
+            this.observeLcbftStep();
+        },
+
+        /**
+         * Activer l'étape LCB-FT
+         */
+        activateLcbftStep: function() {
+            const lcbftStep = this.elements.lcbftStep;
+            const personalInfoStep = document.getElementById('checkout-personal-information-step');
+
+            if (lcbftStep) {
+                // Marquer personal-info comme complet
+                if (personalInfoStep) {
+                    personalInfoStep.classList.remove('-current', 'js-current-step');
+                    personalInfoStep.classList.add('-complete', '-reachable');
+                }
+
+                // Activer l'étape LCB-FT
+                lcbftStep.classList.add('-current', 'js-current-step', '-reachable');
+                lcbftStep.classList.remove('-complete');
+
+                // Scroller vers l'étape
+                lcbftStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        },
+
+        /**
+         * Passer à l'étape suivante (Adresses)
+         */
+        goToNextStep: function() {
+            const lcbftStep = this.elements.lcbftStep;
+            const addressStep = document.getElementById('checkout-addresses-step');
+
+            if (lcbftStep && addressStep) {
+                // Marquer l'étape LCB-FT comme complète
+                lcbftStep.classList.remove('-current', 'js-current-step');
+                lcbftStep.classList.add('-complete', '-reachable');
+
+                // Activer l'étape adresses
+                addressStep.classList.add('-current', 'js-current-step', '-reachable');
+                addressStep.classList.remove('-unreachable');
+
+                // Scroller vers l'étape
+                addressStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Recharger la page pour mettre à jour l'état côté serveur
+                setTimeout(function() {
+                    location.reload();
+                }, 500);
+            }
+        },
+
+        /**
+         * Observer les changements de l'étape LCB-FT
+         */
+        observeLcbftStep: function() {
+            const self = this;
+            const lcbftStep = this.elements.lcbftStep;
+
+            if (!lcbftStep) return;
+
+            // Observer les mutations de classe
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        // Mettre à jour le bouton continuer si l'étape devient complète
+                        if (lcbftStep.classList.contains('-complete')) {
+                            self.config.isComplete = true;
+                        }
+                    }
+                });
+            });
+
+            observer.observe(lcbftStep, { attributes: true });
         }
     };
 
