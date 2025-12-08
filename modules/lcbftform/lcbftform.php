@@ -86,7 +86,9 @@ class LcbftForm extends Module
             && $this->registerHook('displayAdminOrder')
             && $this->registerHook('displayAdminOrderMain')
             && $this->registerHook('actionAdminControllerSetMedia')
-            && $this->registerHook('displayBackOfficeHeader');
+            && $this->registerHook('displayBackOfficeHeader')
+            // Hook Compte Client
+            && $this->registerHook('displayCustomerAccount');
     }
 
     /**
@@ -191,6 +193,11 @@ class LcbftForm extends Module
     {
         $output = '';
 
+        // Enregistrer le hook displayCustomerAccount si pas encore fait
+        if (!$this->isRegisteredInHook('displayCustomerAccount')) {
+            $this->registerHook('displayCustomerAccount');
+        }
+
         // Informations sur le module
         $output .= $this->displayConfirmation(
             $this->l('Le module LCB-FT est actif. Le formulaire apparaît automatiquement dans le tunnel de commande.')
@@ -284,6 +291,15 @@ class LcbftForm extends Module
 
         // Charger sur la page de detail commande (compte client)
         if ($controller === 'order-detail') {
+            $this->context->controller->registerStylesheet(
+                'lcbftform-front',
+                'modules/' . $this->name . '/views/css/front.css',
+                array('media' => 'all', 'priority' => 150)
+            );
+        }
+
+        // Charger sur la page compte client LCB-FT
+        if ($controller === 'account' && Tools::getValue('module') === $this->name) {
             $this->context->controller->registerStylesheet(
                 'lcbftform-front',
                 'modules/' . $this->name . '/views/css/front.css',
@@ -487,6 +503,21 @@ class LcbftForm extends Module
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/order_confirmation.tpl');
+    }
+
+    /**
+     * Hook displayCustomerAccount - Lien vers espace LCB-FT dans Mon compte
+     *
+     * @param array $params
+     * @return string
+     */
+    public function hookDisplayCustomerAccount($params)
+    {
+        $this->context->smarty->assign(array(
+            'lcbft_account_link' => $this->context->link->getModuleLink($this->name, 'account', array(), true),
+        ));
+
+        return $this->display(__FILE__, 'views/templates/hook/customer_account.tpl');
     }
 
     /* =========================================================================
