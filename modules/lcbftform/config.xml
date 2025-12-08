@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>lcbftform</name>
+    <displayName><![CDATA[Formulaire LCB-FT]]></displayName>
+    <version><![CDATA[1.0.0]]></version>
+    <description><![CDATA[Formulaire de lutte contre le blanchiment et financement du terrorisme - Article L 561-16 du Code monétaire et financier]]></description>
+    <author><![CDATA[Paul Bihr]]></author>
+    <tab><![CDATA[administration]]></tab>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+    <limited_countries></limited_countries>
+</module>

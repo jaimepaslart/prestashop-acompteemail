@@ -1,0 +1,472 @@
+/**
+ * CSS Front-Office pour le module LCB-FT Form
+ *
+ * Styles pour le formulaire dans le tunnel de commande
+ * Compatible theme classic PrestaShop 1.7.6.5
+ *
+ * @author    Paul Bihr
+ * @copyright 2025 Paul Bihr
+ */
+
+/* =========================================================================
+   CONTENEUR PRINCIPAL
+   ========================================================================= */
+
+.lcbft-form-container {
+    margin: 20px 0;
+    border: 2px solid #2fb5d2;
+    border-radius: 4px;
+    background: #fff;
+    position: relative;
+}
+
+.lcbft-form-container .card-header.lcbft-header {
+    background: linear-gradient(135deg, #2fb5d2 0%, #1a8a9e 100%);
+    color: #fff;
+    padding: 15px 20px;
+    border-bottom: none;
+}
+
+.lcbft-form-container .lcbft-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.lcbft-form-container .lcbft-header h2 .material-icons {
+    font-size: 24px;
+}
+
+.lcbft-form-container .card-body {
+    padding: 20px;
+}
+
+/* =========================================================================
+   MESSAGE D'INTRODUCTION
+   ========================================================================= */
+
+.lcbft-intro {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    margin-bottom: 25px;
+}
+
+/* =========================================================================
+   SECTIONS DU FORMULAIRE
+   ========================================================================= */
+
+.lcbft-section {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #fafafa;
+}
+
+.lcbft-legend {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #232323;
+    background: #fff;
+    padding: 5px 15px;
+    margin-left: -10px;
+    border-radius: 3px;
+    display: inline-block;
+    border: 1px solid #ddd;
+}
+
+.lcbft-legend-sub {
+    font-weight: 400;
+    font-size: 0.85em;
+    color: #666;
+}
+
+.lcbft-subsection {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1a8a9e;
+    margin: 20px 0 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #2fb5d2;
+}
+
+.lcbft-subsection-small {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* =========================================================================
+   CHAMPS DE FORMULAIRE
+   ========================================================================= */
+
+.lcbft-form .form-group {
+    margin-bottom: 15px;
+}
+
+.lcbft-form label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.lcbft-form .form-control {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+}
+
+.lcbft-form .form-control:focus {
+    border-color: #2fb5d2;
+    box-shadow: 0 0 0 0.2rem rgba(47, 181, 210, 0.25);
+}
+
+.lcbft-form .required {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* =========================================================================
+   RADIO BUTTONS ET CHECKBOXES
+   ========================================================================= */
+
+.lcbft-radio-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.lcbft-radio,
+.lcbft-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 5px 0;
+}
+
+.lcbft-radio input[type="radio"],
+.lcbft-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.lcbft-radio span,
+.lcbft-checkbox span {
+    font-weight: 400;
+}
+
+.lcbft-radio-block {
+    display: block;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lcbft-radio-block:hover {
+    border-color: #2fb5d2;
+    background: #f0fafc;
+}
+
+.lcbft-radio-block input[type="radio"]:checked + span {
+    font-weight: 600;
+    color: #1a8a9e;
+}
+
+.lcbft-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.lcbft-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lcbft-patrimoine-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .lcbft-patrimoine-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================================
+   TABLEAU DES COMMENTAIRES
+   ========================================================================= */
+
+.lcbft-comments-table {
+    font-size: 0.9rem;
+}
+
+.lcbft-comments-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    padding: 10px;
+}
+
+.lcbft-comments-table td {
+    padding: 5px;
+    vertical-align: middle;
+}
+
+.lcbft-comments-table .form-control-sm {
+    font-size: 0.85rem;
+    padding: 5px 8px;
+}
+
+/* =========================================================================
+   SECTION SIGNATURE
+   ========================================================================= */
+
+.lcbft-signature-section {
+    background: #fff9e6;
+    border-color: #ffc107;
+}
+
+.lcbft-acknowledgment {
+    background: #fff;
+    border: 2px solid #dc3545;
+    border-radius: 4px;
+    padding: 15px 20px;
+    margin: 20px 0;
+}
+
+.lcbft-checkbox-required {
+    margin: 0;
+}
+
+.lcbft-acknowledgment-text {
+    font-size: 1rem;
+}
+
+.lcbft-signature-box {
+    border: 2px solid #333;
+    border-radius: 4px;
+    padding: 15px;
+    background: #fff;
+    min-height: 100px;
+}
+
+.lcbft-signature-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.lcbft-signature-label small {
+    font-weight: 400;
+    color: #666;
+}
+
+.lcbft-signature-content {
+    text-align: center;
+    padding: 10px;
+}
+
+.lcbft-signature-placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.lcbft-signature-text {
+    display: block;
+    font-style: italic;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.lcbft-signature-name {
+    display: block;
+    font-size: 1.5rem;
+    font-family: 'Brush Script MT', cursive, sans-serif;
+    color: #1a237e;
+    margin: 10px 0;
+}
+
+.lcbft-signature-date {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* =========================================================================
+   BOUTON DE SOUMISSION
+   ========================================================================= */
+
+.lcbft-submit-section {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 2px solid #eee;
+    margin-top: 20px;
+}
+
+#lcbft-submit-btn {
+    background: linear-gradient(135deg, #2fb5d2 0%, #1a8a9e 100%);
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#lcbft-submit-btn:hover {
+    background: linear-gradient(135deg, #1a8a9e 0%, #147085 100%);
+}
+
+#lcbft-submit-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+#lcbft-submit-btn .material-icons {
+    font-size: 20px;
+}
+
+.lcbft-mandatory-notice {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* =========================================================================
+   MESSAGES D'ERREUR ET SUCCES
+   ========================================================================= */
+
+#lcbft-error-message,
+#lcbft-success-message {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* =========================================================================
+   INDICATEUR DE STATUT
+   ========================================================================= */
+
+.lcbft-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.lcbft-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.lcbft-status-complete {
+    background: #d4edda;
+    color: #155724;
+}
+
+.lcbft-status .material-icons {
+    font-size: 18px;
+}
+
+/* =========================================================================
+   CHAMPS DE DETAIL CONDITIONNELS
+   ========================================================================= */
+
+.lcbft-detail-field {
+    padding-left: 25px;
+    border-left: 3px solid #2fb5d2;
+    margin-top: 10px;
+}
+
+/* =========================================================================
+   PAGE COMPTE CLIENT - BLOC COMMANDE
+   ========================================================================= */
+
+.lcbft-order-detail-block {
+    border-left: 4px solid #2fb5d2;
+}
+
+.lcbft-order-detail-block .card-header {
+    background: #f8f9fa;
+}
+
+.lcbft-order-detail-block .card-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lcbft-order-detail-block .badge-success {
+    background: #28a745;
+}
+
+/* =========================================================================
+   PAGE CONFIRMATION COMMANDE
+   ========================================================================= */
+
+.lcbft-confirmation-block {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.lcbft-confirmation-block p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lcbft-confirmation-block .material-icons {
+    font-size: 20px;
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+
+@media (max-width: 576px) {
+    .lcbft-form-container .card-body {
+        padding: 15px;
+    }
+
+    .lcbft-section {
+        padding: 15px;
+    }
+
+    .lcbft-checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .lcbft-status {
+        position: static;
+        margin: 10px 20px;
+        justify-content: center;
+    }
+
+    #lcbft-submit-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

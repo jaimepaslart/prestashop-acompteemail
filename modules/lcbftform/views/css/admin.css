@@ -1,0 +1,100 @@
+/**
+ * CSS Back-Office pour le module LCB-FT Form
+ *
+ * @author    Paul Bihr
+ * @copyright 2025 Paul Bihr
+ */
+
+/* =========================================================================
+   BLOC SUR PAGE COMMANDE
+   ========================================================================= */
+
+.lcbft-order-block {
+    border-left: 4px solid #0088cc;
+}
+
+.lcbft-order-block .panel-heading {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.lcbft-order-block .panel-heading i {
+    margin-right: 8px;
+}
+
+/* =========================================================================
+   PAGE DETAIL FORMULAIRE
+   ========================================================================= */
+
+.lcbft-detail-panel .panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lcbft-detail-panel .panel {
+    margin-bottom: 15px;
+}
+
+.lcbft-detail-panel .panel-heading i {
+    margin-right: 8px;
+}
+
+.lcbft-detail-panel .table td:first-child {
+    font-weight: 600;
+    background-color: #fafafa;
+}
+
+/* =========================================================================
+   BADGES ET LABELS
+   ========================================================================= */
+
+.badge-success {
+    background-color: #5cb85c;
+}
+
+.badge-warning {
+    background-color: #f0ad4e;
+}
+
+.badge-primary {
+    background-color: #337ab7;
+}
+
+.badge-secondary {
+    background-color: #777;
+}
+
+/* =========================================================================
+   LISTE DES FORMULAIRES
+   ========================================================================= */
+
+.lcbft-list-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.lcbft-list-badge.signed {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.lcbft-list-badge.pending {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+}
+
+/* =========================================================================
+   BOUTONS D'ACTION
+   ========================================================================= */
+
+.btn-row-action {
+    margin-right: 5px;
+}
+
+.btn-row-action i {
+    margin-right: 0;
+}
