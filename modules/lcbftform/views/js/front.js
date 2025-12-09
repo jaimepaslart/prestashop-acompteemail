@@ -388,7 +388,7 @@
 
                         // Scroller vers le formulaire
                         if (self.elements.container) {
-                            self.elements.container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            self.scrollToElement(self.elements.container);
                         }
                     }
                 }
@@ -436,7 +436,7 @@
                     if (!isComplete) {
                         // Revenir à l'étape précédente
                         self.showCheckoutBlockMessage();
-                        self.elements.container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        self.scrollToElement(self.elements.container);
                     }
                 });
             }
@@ -676,8 +676,8 @@
                 lcbftStep.classList.add('-current', 'js-current-step', '-reachable');
                 lcbftStep.classList.remove('-complete');
 
-                // Scroller vers l'étape
-                lcbftStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Scroller vers l'étape avec un offset pour ne pas coller au haut
+                this.scrollToElement(lcbftStep);
             }
         },
 
@@ -697,14 +697,31 @@
                 addressStep.classList.add('-current', 'js-current-step', '-reachable');
                 addressStep.classList.remove('-unreachable');
 
-                // Scroller vers l'étape
-                addressStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Scroller vers l'étape adresses avec un offset
+                this.scrollToElement(addressStep);
 
                 // Recharger la page pour mettre à jour l'état côté serveur
                 setTimeout(function() {
                     location.reload();
                 }, 500);
             }
+        },
+
+        /**
+         * Scroller vers un élément avec un offset (comme les autres étapes PrestaShop)
+         */
+        scrollToElement: function(element) {
+            if (!element) return;
+
+            // Calculer la position avec un offset de 100px depuis le haut
+            const headerOffset = 100;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
         },
 
         /**
