@@ -186,7 +186,7 @@ class LcbftPdfGenerator
         $this->pdf->SetFont('helvetica', '', 9);
         $this->pdf->SetTextColor(0, 0, 0);
 
-        // Tableau des coordonnees
+        // Tableau des coordonnees - affiche tous les champs
         $data = array(
             array('Nom de l\'entreprise', $form->entreprise),
             array('Civilité', $form->civilite),
@@ -202,7 +202,7 @@ class LcbftPdfGenerator
             array('Téléphone', $form->telephone),
         );
 
-        $this->renderDataTable($data);
+        $this->renderDataTableAll($data);
         $this->pdf->Ln(5);
     }
 
@@ -222,13 +222,18 @@ class LcbftPdfGenerator
         $this->pdf->SetFont('helvetica', '', 9);
         $this->pdf->SetTextColor(0, 0, 0);
 
+        // Afficher tous les champs meme vides
+        $patrimoineLabel = $form->getPatrimoineLabel();
+        $ifiLabel = ($form->soumis_ifi == 1) ? 'Oui' : (($form->soumis_ifi == 0) ? 'Non' : '-');
+
         $data = array(
             array('Rémunérations brutes annuelles', $form->remunerations_annuelles),
-            array('Estimation du patrimoine total', $form->getPatrimoineLabel()),
-            array('Soumis à l\'IFI', $form->soumis_ifi ? 'Oui' : 'Non'),
+            array('Estimation du patrimoine total', $patrimoineLabel),
+            array('Soumis à l\'IFI', $ifiLabel),
         );
 
-        $this->renderDataTable($data);
+        $this->renderDataTableAll($data);
+
         $this->pdf->Ln(3);
     }
 
@@ -373,11 +378,11 @@ class LcbftPdfGenerator
 
         $this->pdf->SetFont('helvetica', '', 9);
 
-        // Lieu et date
+        // Lieu et date - affiche toujours meme si vide
         $this->pdf->Cell(40, 6, 'Fait le : ', 0, 0);
-        $this->pdf->Cell(50, 6, $form->date_signature, 0, 0);
+        $this->pdf->Cell(50, 6, !empty($form->date_signature) ? $form->date_signature : '-', 0, 0);
         $this->pdf->Cell(20, 6, 'À : ', 0, 0);
-        $this->pdf->Cell(70, 6, $form->lieu_signature, 0, 1);
+        $this->pdf->Cell(70, 6, !empty($form->lieu_signature) ? $form->lieu_signature : '-', 0, 1);
 
         $this->pdf->Ln(3);
 
@@ -438,7 +443,7 @@ class LcbftPdfGenerator
     }
 
     /**
-     * Rendu d'un tableau de donnees simple
+     * Rendu d'un tableau de donnees simple (saute les champs vides)
      *
      * @param array $data
      */
@@ -453,6 +458,25 @@ class LcbftPdfGenerator
                 $this->pdf->SetFont('helvetica', '', 9);
                 $this->pdf->Cell(0, 5, $row[1], 0, 1);
             }
+        }
+    }
+
+    /**
+     * Rendu d'un tableau de donnees - affiche TOUS les champs meme vides
+     *
+     * @param array $data
+     */
+    protected function renderDataTableAll($data)
+    {
+        $this->pdf->SetFont('helvetica', '', 9);
+
+        foreach ($data as $row) {
+            $this->pdf->SetFont('helvetica', 'B', 9);
+            $this->pdf->Cell(60, 5, $row[0] . ' :', 0, 0);
+            $this->pdf->SetFont('helvetica', '', 9);
+            // Affiche le champ meme si vide (tiret pour indiquer non renseigne)
+            $value = !empty($row[1]) ? $row[1] : '-';
+            $this->pdf->Cell(0, 5, $value, 0, 1);
         }
     }
 
