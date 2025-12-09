@@ -221,24 +221,26 @@ class LcbftPdfGenerator
         $this->renderCheckboxLine('de 300 000 EUR a 720 000 euros', ($patrimoine == '300k_720k'));
         $this->renderCheckboxLine('de 720 000 EUR a 1,5 million d\'euros', ($patrimoine == '720k_1500k'));
 
-        // Plus de 1,5M avec precision
+        // Plus de 1,5M avec precision - sur deux lignes
         $isPlus1500k = ($patrimoine == 'more_1500k');
         $this->drawCheckbox($isPlus1500k);
         $this->pdf->SetFont('dejavusans', 'B', 9);
-        $this->pdf->Cell(55, 5, 'plus de 1,5 million d\'euros', 0, 0);
+        $this->pdf->Cell(0, 5, 'plus de 1,5 million d\'euros', 0, 1);
         $this->pdf->SetFont('dejavusans', '', 9);
-        $this->pdf->Cell(20, 5, '-> Precisez', 0, 0);
-        $this->pdf->Cell(95, 5, $form->patrimoine_precision, 'B', 1);
+        $this->pdf->Cell(10, 5, '', 0, 0); // Indentation
+        $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
+        $this->pdf->Cell(150, 5, $form->patrimoine_precision, 'B', 1);
 
-        // IFI
+        // IFI - sur deux lignes pour eviter chevauchement
         $this->pdf->Ln(2);
         $ifiOui = ($form->soumis_ifi == 1);
         $ifiNon = ($form->soumis_ifi === 0 || $form->soumis_ifi === '0');
-        $this->pdf->Cell(75, 5, 'Etes-vous soumis (e) a l\'impot sur la Fortune Immobiliere ?', 0, 0);
+        $this->pdf->Cell(0, 5, 'Etes-vous soumis (e) a l\'impot sur la Fortune Immobiliere ?', 0, 1);
+        $this->pdf->Cell(10, 5, '', 0, 0); // Indentation
         $this->drawCheckbox($ifiOui);
-        $this->pdf->Cell(10, 5, 'Oui', 0, 0);
+        $this->pdf->Cell(15, 5, 'Oui', 0, 0);
         $this->drawCheckbox($ifiNon);
-        $this->pdf->Cell(10, 5, 'Non', 0, 1);
+        $this->pdf->Cell(15, 5, 'Non', 0, 1);
 
         $this->pdf->Ln(3);
     }
@@ -268,34 +270,35 @@ class LcbftPdfGenerator
         $this->renderCheckboxLine('Revenus ou Dividendes', in_array('revenus', $origines));
         $this->renderCheckboxLine('Gains aux jeux', in_array('jeux', $origines));
 
-        // Cession d'actifs avec precision
+        // Cession d'actifs avec precision - sur deux lignes
         $isCession = in_array('cession', $origines);
         $this->drawCheckbox($isCession);
         $this->pdf->SetFont('dejavusans', 'B', 9);
-        $this->pdf->Cell(75, 5, 'Cession d\'actifs (professionnels, Immobiliers, mobiliers...)', 0, 0);
+        $this->pdf->Cell(0, 5, 'Cession d\'actifs (professionnels, Immobiliers, mobiliers...)', 0, 1);
         $this->pdf->SetFont('dejavusans', '', 9);
-        $this->pdf->Cell(20, 5, '-> Precisez', 0, 0);
-        $this->pdf->Cell(75, 5, $form->origine_cession_detail, 'B', 1);
+        $this->pdf->Cell(10, 5, '', 0, 0); // Indentation
+        $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
+        $this->pdf->Cell(150, 5, $form->origine_cession_detail, 'B', 1);
 
-        // Epargne personnelle avec precision
+        // Epargne personnelle avec precision - sur deux lignes
         $isEpargne = in_array('epargne', $origines);
         $this->drawCheckbox($isEpargne);
         $this->pdf->SetFont('dejavusans', 'B', 9);
-        $this->pdf->Cell(35, 5, 'Epargne personnelle', 0, 0);
+        $this->pdf->Cell(0, 5, 'Epargne personnelle', 0, 1);
         $this->pdf->SetFont('dejavusans', '', 9);
-        $this->pdf->Cell(70, 5, '-> Precisez la date et l\'origine de l\'investissement initial :', 0, 0);
-        $this->pdf->Cell(65, 5, $form->origine_epargne_detail, 'B', 1);
-        // Ligne supplementaire
-        $this->pdf->Cell(180, 5, '', 'B', 1);
+        $this->pdf->Cell(10, 5, '', 0, 0); // Indentation
+        $this->pdf->Cell(80, 5, '-> Precisez la date et l\'origine de l\'investissement initial :', 0, 0);
+        $this->pdf->Cell(90, 5, $form->origine_epargne_detail, 'B', 1);
 
         // Autre avec precision
+        $this->pdf->Ln(1);
         $isAutre = in_array('autre', $origines);
         $this->drawCheckbox($isAutre);
         $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(15, 5, 'Autre', 0, 0);
         $this->pdf->SetFont('dejavusans', '', 9);
-        $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
-        $this->pdf->Cell(135, 5, $form->origine_autre_detail, 'B', 1);
+        $this->pdf->Cell(25, 5, '-> Precisez :', 0, 0);
+        $this->pdf->Cell(130, 5, $form->origine_autre_detail, 'B', 1);
 
         // Nature du justificatif
         $this->pdf->Ln(2);
