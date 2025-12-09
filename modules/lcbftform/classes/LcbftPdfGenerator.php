@@ -2,7 +2,7 @@
 /**
  * Classe de generation PDF pour les formulaires LCB-FT
  *
- * Utilise TCPDF (inclus dans PrestaShop) pour generer les PDF.
+ * Reproduit le format exact du formulaire papier OR INVESTISSEMENT
  *
  * @author    Paul Bihr
  * @copyright 2025 Paul Bihr
@@ -13,54 +13,33 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-// Charger TCPDF de PrestaShop (emplacement varie selon la version)
+// Charger TCPDF de PrestaShop
 if (file_exists(_PS_ROOT_DIR_ . '/vendor/tecnickcom/tcpdf/tcpdf.php')) {
-    // PrestaShop 1.7.x - TCPDF via Composer
     require_once _PS_ROOT_DIR_ . '/vendor/tecnickcom/tcpdf/tcpdf.php';
 } elseif (file_exists(_PS_TOOL_DIR_ . 'tcpdf/tcpdf.php')) {
-    // PrestaShop 1.6.x / anciennes versions 1.7
     require_once _PS_TOOL_DIR_ . 'tcpdf/tcpdf.php';
 } else {
-    throw new Exception('TCPDF library not found. Please check your PrestaShop installation.');
+    throw new Exception('TCPDF library not found.');
 }
 
-/**
- * Generateur de PDF pour les formulaires LCB-FT
- */
 class LcbftPdfGenerator
 {
-    /**
-     * @var Module Instance du module
-     */
     protected $module;
-
-    /**
-     * @var TCPDF Instance TCPDF
-     */
     protected $pdf;
 
-    /**
-     * Constructeur
-     *
-     * @param Module $module
-     */
+    // Couleur verte pour les titres de section
+    protected $greenColor = array(0, 128, 0);
+
     public function __construct($module)
     {
         $this->module = $module;
     }
 
-    /**
-     * Genere et telecharge le PDF
-     *
-     * @param LcbftFormModel $form
-     * @param Order|null $order
-     */
     public function generateAndDownload($form, $order = null)
     {
         $this->initPdf();
         $this->generateContent($form, $order);
 
-        // Nom du fichier
         $filename = 'LCBFT_';
         if ($order) {
             $filename .= $order->reference . '_';
@@ -68,461 +47,440 @@ class LcbftPdfGenerator
         $filename .= $form->nom . '_' . $form->prenom . '.pdf';
         $filename = $this->sanitizeFilename($filename);
 
-        // Telecharger
         $this->pdf->Output($filename, 'D');
     }
 
-    /**
-     * Genere et retourne le contenu PDF en string
-     *
-     * @param LcbftFormModel $form
-     * @param Order|null $order
-     * @return string
-     */
     public function generateString($form, $order = null)
     {
         $this->initPdf();
         $this->generateContent($form, $order);
-
         return $this->pdf->Output('', 'S');
     }
 
-    /**
-     * Initialise l'instance TCPDF
-     */
     protected function initPdf()
     {
         $this->pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
 
-        // Informations document
         $this->pdf->SetCreator('PrestaShop - Module LCB-FT');
         $this->pdf->SetAuthor('PrestaShop');
         $this->pdf->SetTitle('Formulaire LCB-FT');
-        $this->pdf->SetSubject('Lutte contre le blanchiment et financement du terrorisme');
 
-        // Supprimer header/footer par defaut
         $this->pdf->setPrintHeader(false);
         $this->pdf->setPrintFooter(false);
 
-        // Marges
         $this->pdf->SetMargins(15, 15, 15);
         $this->pdf->SetAutoPageBreak(true, 15);
-
-        // Police par defaut
         $this->pdf->SetFont('helvetica', '', 10);
     }
 
-    /**
-     * Genere le contenu du PDF
-     *
-     * @param LcbftFormModel $form
-     * @param Order|null $order
-     */
     protected function generateContent($form, $order = null)
     {
         $this->pdf->AddPage();
 
         // En-tete
-        $this->renderHeader($form, $order);
+        $this->renderHeader($order);
 
-        // Section Coordonnees
+        // Coordonnees
         $this->renderCoordonnees($form);
 
-        // Section Attestation
+        // Attestation sur l'honneur
         $this->renderAttestation($form);
 
-        // Section Origine des fonds
+        // Origine des fonds
         $this->renderOrigineFonds($form);
 
-        // Section Commentaires
+        // Page 2
+        $this->pdf->AddPage();
+
+        // Commentaires
         $this->renderCommentaires($form);
 
-        // Section Justificatifs
+        // Justificatifs
         $this->renderJustificatifs($form);
 
-        // Section Signature
+        // Signature
         $this->renderSignature($form);
     }
 
     /**
-     * Rendu de l'en-tete
+     * En-tete du formulaire
      */
-    protected function renderHeader($form, $order)
+    protected function renderHeader($order)
     {
-        // Titre principal
-        $this->pdf->SetFont('helvetica', 'B', 16);
-        $this->pdf->SetTextColor(0, 102, 153);
-        $this->pdf->Cell(0, 10, 'FORMULAIRE LCB-FT', 0, 1, 'C');
+        // Titre
+        $this->pdf->SetFont('helvetica', 'B', 14);
+        $this->pdf->Cell(0, 8, 'FORMULAIRE LCB-FT', 0, 1, 'C');
 
-        $this->pdf->SetFont('helvetica', 'I', 9);
-        $this->pdf->SetTextColor(80, 80, 80);
-        $this->pdf->Cell(0, 5, 'Article L 561-16 du Code monétaire et financier', 0, 1, 'C');
-
-        // Reference commande si existante
-        if ($order) {
-            $this->pdf->Ln(2);
-            $this->pdf->SetFont('helvetica', 'B', 11);
-            $this->pdf->SetTextColor(0, 0, 0);
-            $this->pdf->Cell(0, 7, 'Commande n° ' . $order->reference, 0, 1, 'C');
-        }
+        $this->pdf->SetFont('helvetica', '', 10);
+        $this->pdf->Cell(0, 5, 'Article L 561-16 du Code monetaire et financier', 0, 1, 'C');
 
         $this->pdf->Ln(4);
 
-        // Encadre d'introduction
-        $this->pdf->SetFillColor(245, 245, 245);
-        $this->pdf->SetDrawColor(200, 200, 200);
-        $startY = $this->pdf->GetY();
-
-        // Texte d'introduction dans un cadre
+        // Texte d'introduction
         $this->pdf->SetFont('helvetica', '', 9);
-        $this->pdf->SetTextColor(50, 50, 50);
+        $intro = "Dans le cadre des obligations reglementaires relatives au dispositif de lutte contre le blanchiment des capitaux et le financement du terrorisme imposees a l'OR INVESTISSEMENT dans le cadre des operations effectuees aupres de ses Clients, nous vous prions de nous retourner le present formulaire dument complete, date et signe, accompagne d'un justificatif d'identite en cours de validite (recto-verso) des lors que la valeur de vos biens ou operations depassent la somme de 15 000 euros et/ou lorsque vous effectuez des operations successives.";
+        $this->pdf->MultiCell(0, 4.5, $intro, 0, 'J');
 
-        $intro = "En application de la réglementation en vigueur relative à la lutte contre le blanchiment de capitaux et le financement du terrorisme, nous vous remercions de bien vouloir compléter ce formulaire.\n\nLes informations demandées sont strictement confidentielles et destinées à satisfaire aux obligations légales.";
-
-        $this->pdf->MultiCell(0, 5, $intro, 1, 'J', true);
-
-        $this->pdf->Ln(6);
-        $this->pdf->SetTextColor(0, 0, 0);
+        $this->pdf->Ln(5);
     }
 
     /**
-     * Rendu de la section Coordonnees
+     * Section Coordonnees
      */
     protected function renderCoordonnees($form)
     {
-        $this->renderSectionTitle('VOS COORDONNÉES');
+        // Titre section
+        $this->pdf->SetFont('helvetica', 'B', 11);
+        $this->pdf->Cell(0, 7, 'VOS COORDONNEES', 0, 1, 'C');
+        $this->pdf->Ln(2);
 
         $this->pdf->SetFont('helvetica', '', 9);
-        $this->pdf->SetTextColor(0, 0, 0);
+        $this->pdf->SetDrawColor(0, 0, 0);
 
-        // Tableau des coordonnees - affiche tous les champs
-        $data = array(
-            array('Nom de l\'entreprise', $form->entreprise),
-            array('Civilité', $form->civilite),
-            array('Nom', $form->nom),
-            array('Prénom', $form->prenom),
-            array('Profession', $form->profession),
-            array('Identifiant de connexion', $form->identifiant_connexion),
-            array('Adresse', $form->adresse),
-            array('Code postal', $form->code_postal),
-            array('Ville', $form->ville),
-            array('Pays', $form->pays),
-            array('E-mail', $form->email),
-            array('Téléphone', $form->telephone),
-        );
+        // Nom de l'entreprise
+        $this->pdf->Cell(35, 6, 'Nom de l\'entreprise :', 0, 0);
+        $this->pdf->Cell(145, 6, $form->entreprise, 'B', 1);
 
-        $this->renderDataTableAll($data);
+        // Civilite + Nom + Prenom sur meme ligne
+        $isMme = ($form->civilite == 'Mme' || $form->civilite == 'Madame');
+        $isM = ($form->civilite == 'M.' || $form->civilite == 'M' || $form->civilite == 'Monsieur');
+
+        $this->pdf->Cell(5, 6, ($isMme ? chr(254) : chr(168)), 0, 0); // Checkbox
+        $this->pdf->Cell(12, 6, 'Mme.', 0, 0);
+        $this->pdf->Cell(5, 6, ($isM ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(12, 6, 'M.', 0, 0);
+        $this->pdf->Cell(12, 6, 'Nom :', 0, 0);
+        $this->pdf->Cell(55, 6, $form->nom, 'B', 0);
+        $this->pdf->Cell(18, 6, 'Prenom :', 0, 0);
+        $this->pdf->Cell(61, 6, $form->prenom, 'B', 1);
+
+        // Profession
+        $this->pdf->Cell(22, 6, 'Profession :', 0, 0);
+        $this->pdf->Cell(158, 6, $form->profession, 'B', 1);
+
+        // Identifiant connexion
+        $this->pdf->Cell(60, 6, 'Identifiant de connexion sur l\'espace prive :', 0, 0);
+        $this->pdf->Cell(120, 6, $form->identifiant_connexion, 'B', 1);
+
+        // Adresse
+        $this->pdf->Cell(18, 6, 'Adresse :', 0, 0);
+        $this->pdf->Cell(162, 6, $form->adresse, 'B', 1);
+
+        // Code postal + Ville + Pays
+        $this->pdf->Cell(22, 6, 'Code postal :', 0, 0);
+        $this->pdf->Cell(25, 6, $form->code_postal, 'B', 0);
+        $this->pdf->Cell(12, 6, 'Ville :', 0, 0);
+        $this->pdf->Cell(60, 6, $form->ville, 'B', 0);
+        $this->pdf->Cell(12, 6, 'Pays :', 0, 0);
+        $this->pdf->Cell(49, 6, $form->pays, 'B', 1);
+
+        // Email + Telephone
+        $this->pdf->Cell(15, 6, 'E-mail :', 0, 0);
+        $this->pdf->Cell(85, 6, $form->email, 'B', 0);
+        $this->pdf->Cell(22, 6, 'Telephone :', 0, 0);
+        $this->pdf->Cell(58, 6, $form->telephone, 'B', 1);
+
         $this->pdf->Ln(5);
     }
 
     /**
-     * Rendu de la section Attestation
+     * Section Attestation sur l'honneur
      */
     protected function renderAttestation($form)
     {
-        $year = date('Y');
-        $this->renderSectionTitle('ATTESTATION SUR L\'HONNEUR (valable jusqu\'au 31 décembre ' . $year . ')');
-
-        // Sous-section : Informations patrimoniales
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->SetTextColor(0, 102, 153);
-        $this->pdf->Cell(0, 6, 'INFORMATIONS PATRIMONIALES', 0, 1);
+        // Titre
+        $this->pdf->SetFont('helvetica', 'B', 11);
+        $this->pdf->Cell(0, 7, 'ATTESTATION SUR L\'HONNEUR', 0, 1, 'C');
 
         $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(0, 5, '(Valable jusqu\'au 31 decembre de l\'annee en cours)', 0, 1, 'C');
+        $this->pdf->Ln(2);
+        $this->pdf->Cell(0, 5, 'J\'atteste sur l\'honneur des informations suivantes :', 0, 1);
+        $this->pdf->Ln(2);
+
+        // INFORMATIONS PATRIMONIALES
+        $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(5, 5, chr(168), 0, 0); // Losange
+        $this->pdf->Cell(0, 5, 'INFORMATIONS PATRIMONIALES', 0, 1);
         $this->pdf->SetTextColor(0, 0, 0);
 
-        // Afficher tous les champs meme vides
-        $patrimoineLabel = $form->getPatrimoineLabel();
-        $ifiLabel = ($form->soumis_ifi == 1) ? 'Oui' : (($form->soumis_ifi == 0) ? 'Non' : '-');
+        $this->pdf->SetFont('helvetica', '', 9);
 
-        $data = array(
-            array('Rémunérations brutes annuelles', $form->remunerations_annuelles),
-            array('Estimation du patrimoine total', $patrimoineLabel),
-            array('Soumis à l\'IFI', $ifiLabel),
-        );
+        // Remunerations
+        $this->pdf->MultiCell(0, 5, 'Remunerations brutes annuelles du Client (salaire, benefices, bonus, prime, pension de retraite, pension d\'invalidite...) :', 0, 'L');
+        $this->pdf->Cell(180, 6, $form->remunerations_annuelles, 'B', 1);
 
-        $this->renderDataTableAll($data);
+        // Estimation patrimoine
+        $this->pdf->Cell(0, 5, 'Estimation du patrimoine total :', 0, 1);
+
+        $patrimoine = $form->patrimoine_estimation;
+        $this->renderCheckbox('moins de 300 000 euros', ($patrimoine == 'less_300k'));
+        $this->renderCheckbox('de 300 000 EUR a 720 000 euros', ($patrimoine == '300k_720k'));
+        $this->renderCheckbox('de 720 000 EUR a 1,5 million d\'euros', ($patrimoine == '720k_1500k'));
+
+        // Plus de 1,5M avec precision
+        $isPlus1500k = ($patrimoine == 'more_1500k');
+        $this->pdf->Cell(5, 5, ($isPlus1500k ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(55, 5, 'plus de 1,5 million d\'euros', 0, 0);
+        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(20, 5, '-> Precisez', 0, 0);
+        $this->pdf->Cell(100, 5, ($isPlus1500k ? $form->patrimoine_precision : ''), 'B', 1);
+
+        // IFI
+        $this->pdf->Ln(2);
+        $ifiOui = ($form->soumis_ifi == 1);
+        $ifiNon = ($form->soumis_ifi === 0 || $form->soumis_ifi === '0');
+        $this->pdf->Cell(75, 5, 'Etes-vous soumis (e) a l\'impot sur la Fortune Immobiliere ?', 0, 0);
+        $this->pdf->Cell(5, 5, ($ifiOui ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(10, 5, 'Oui', 0, 0);
+        $this->pdf->Cell(5, 5, ($ifiNon ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(10, 5, 'Non', 0, 1);
 
         $this->pdf->Ln(3);
     }
 
     /**
-     * Rendu de la section Origine des fonds
-     * Affiche TOUTES les options avec cases cochees ou non
+     * Section Origine des fonds
      */
     protected function renderOrigineFonds($form)
     {
+        // Titre
+        $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
         $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->SetTextColor(0, 102, 153);
-        $this->pdf->Cell(0, 6, 'ORIGINE DES FONDS', 0, 1);
-
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(5, 5, chr(168), 0, 0);
+        $this->pdf->Cell(0, 5, 'ORIGINE DES FONDS', 0, 1);
         $this->pdf->SetTextColor(0, 0, 0);
+        $this->pdf->SetFont('helvetica', '', 9);
+
+        $this->pdf->MultiCell(0, 4.5, 'En cas de pluralite d\'origine des fonds, veuillez fournir le detail dans la zone "commentaires", les dates, montants et origines.', 0, 'L');
+        $this->pdf->Ln(1);
 
         $origines = $form->getOrigineFonds();
-        $allOptions = array(
-            'vente_immo' => 'Vente Immobilière',
-            'donation' => 'Donation',
-            'heritage' => 'Héritage',
-            'revenus' => 'Revenus ou Dividendes',
-            'jeux' => 'Gains aux jeux',
-            'cession' => 'Cession d\'actifs',
-            'epargne' => 'Épargne personnelle',
-            'autre' => 'Autre',
-        );
 
-        // Afficher TOUTES les options avec case cochee ou non
-        foreach ($allOptions as $key => $label) {
-            $checked = in_array($key, $origines) ? '☑' : '☐';
-            $this->pdf->Cell(0, 5, $checked . ' ' . $label, 0, 1);
-        }
+        // Options simples
+        $this->renderCheckbox('Vente Immobiliere', in_array('vente_immo', $origines));
+        $this->renderCheckbox('Donation', in_array('donation', $origines));
+        $this->renderCheckbox('Heritage', in_array('heritage', $origines));
+        $this->renderCheckbox('Revenus ou Dividendes', in_array('revenus', $origines));
+        $this->renderCheckbox('Gains aux jeux', in_array('jeux', $origines));
 
+        // Cession d'actifs avec precision
+        $isCession = in_array('cession', $origines);
+        $this->pdf->Cell(5, 5, ($isCession ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(75, 5, 'Cession d\'actifs (professionnels, Immobiliers, mobiliers...)', 0, 0);
+        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(20, 5, '-> Precisez', 0, 0);
+        $this->pdf->Cell(80, 5, $form->origine_cession_detail, 'B', 1);
+
+        // Epargne personnelle avec precision
+        $isEpargne = in_array('epargne', $origines);
+        $this->pdf->Cell(5, 5, ($isEpargne ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(35, 5, 'Epargne personnelle', 0, 0);
+        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(70, 5, '-> Precisez la date et l\'origine de l\'investissement initial :', 0, 0);
+        $this->pdf->Cell(70, 5, $form->origine_epargne_detail, 'B', 1);
+        // Ligne supplementaire
+        $this->pdf->Cell(180, 5, '', 'B', 1);
+
+        // Autre avec precision
+        $isAutre = in_array('autre', $origines);
+        $this->pdf->Cell(5, 5, ($isAutre ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(15, 5, 'Autre', 0, 0);
+        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
+        $this->pdf->Cell(140, 5, $form->origine_autre_detail, 'B', 1);
+
+        // Nature du justificatif
         $this->pdf->Ln(2);
-
-        // Champs de precision (toujours affichés)
-        $this->renderFormField('Cession d\'actifs (précision)', $form->origine_cession_detail);
-        $this->renderFormField('Épargne personnelle (précision)', $form->origine_epargne_detail);
-        $this->renderFormField('Autre origine (précision)', $form->origine_autre_detail);
-
-        // Justificatif origine fonds
-        $this->pdf->Ln(2);
-        $this->pdf->SetFont('helvetica', 'I', 8);
-        $this->pdf->SetTextColor(80, 80, 80);
-        $this->pdf->Cell(0, 4, 'Nature du justificatif (pour versements > 15 000 €) :', 0, 1);
-        $this->pdf->SetTextColor(0, 0, 0);
-        $this->renderFormField('', $form->justificatif_origine_fonds, 180);
-
-        $this->pdf->Ln(3);
+        $this->pdf->MultiCell(0, 4.5, 'Nature du justificatif d\'origine des fonds fourni pour tout versement superieur a 15 000 EUR (montant total unique ou cumule sur 12 mois civils :', 0, 'L');
+        $this->pdf->Cell(180, 5, $form->justificatif_origine_fonds, 'B', 1);
     }
 
     /**
-     * Rendu de la section Commentaires
+     * Section Commentaires (page 2)
      */
     protected function renderCommentaires($form)
     {
+        $this->pdf->SetFont('helvetica', 'I', 8);
+        $this->pdf->Cell(0, 5, 'Exemples : acte notarie, releve de compte, avis d\'imposition, ...', 0, 1);
+        $this->pdf->Ln(3);
+
+        // Titre
+        $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(5, 5, chr(168), 0, 0);
+        $this->pdf->Cell(0, 5, 'COMMENTAIRES :', 0, 1);
+        $this->pdf->SetTextColor(0, 0, 0);
+        $this->pdf->SetFont('helvetica', '', 9);
+
+        $this->pdf->Cell(0, 5, 'En cas de pluralite d\'origine des fonds, veuillez detailler les dates, montants et origines ci-dessous :', 0, 1);
+        $this->pdf->Ln(3);
+
+        // Tableau commentaires
+        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(35, 6, 'Date', 1, 0, 'L');
+        $this->pdf->Cell(45, 6, 'Montant', 1, 0, 'L');
+        $this->pdf->Cell(100, 6, 'Origine', 1, 1, 'L');
+
+        // Lignes du tableau (8 lignes vides ou avec donnees)
         $commentaires = $form->getCommentaires();
+        for ($i = 0; $i < 8; $i++) {
+            $date = isset($commentaires[$i]['date']) ? $commentaires[$i]['date'] : '';
+            $montant = isset($commentaires[$i]['montant']) ? $commentaires[$i]['montant'] : '';
+            $origine = isset($commentaires[$i]['origine']) ? $commentaires[$i]['origine'] : '';
 
-        if (empty($commentaires)) {
-            return;
-        }
-
-        $this->renderSectionTitle('COMMENTAIRES');
-
-        $this->pdf->SetFont('helvetica', '', 8);
-
-        // En-tete du tableau
-        $this->pdf->SetFillColor(240, 240, 240);
-        $this->pdf->Cell(35, 6, 'Date', 1, 0, 'C', true);
-        $this->pdf->Cell(35, 6, 'Montant', 1, 0, 'C', true);
-        $this->pdf->Cell(110, 6, 'Origine', 1, 1, 'C', true);
-
-        // Lignes
-        $this->pdf->SetFillColor(255, 255, 255);
-        foreach ($commentaires as $ligne) {
-            $this->pdf->Cell(35, 5, isset($ligne['date']) ? $ligne['date'] : '', 1, 0, 'C');
-            $this->pdf->Cell(35, 5, isset($ligne['montant']) ? $ligne['montant'] : '', 1, 0, 'C');
-            $this->pdf->Cell(110, 5, isset($ligne['origine']) ? $ligne['origine'] : '', 1, 1, 'L');
+            $this->pdf->Cell(35, 6, $date, 1, 0, 'L');
+            $this->pdf->Cell(45, 6, $montant, 1, 0, 'L');
+            $this->pdf->Cell(100, 6, $origine, 1, 1, 'L');
         }
 
         $this->pdf->Ln(5);
     }
 
     /**
-     * Rendu de la section Justificatifs
-     * Affiche TOUTES les options avec cases cochees ou non
+     * Section Justificatifs
      */
     protected function renderJustificatifs($form)
     {
+        // Titre
+        $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(5, 5, chr(168), 0, 0);
+        $this->pdf->Cell(0, 5, 'JUSTIFICATIFS FOURNIS :', 0, 1);
+        $this->pdf->SetTextColor(0, 0, 0);
+        $this->pdf->Ln(2);
+
         $justificatifs = $form->getJustificatifs();
 
-        $this->renderSectionTitle('JUSTIFICATIFS FOURNIS');
-
+        // Justificatif d'identite
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(0, 5, 'Justificatif D\'identite (en cours de validite)', 0, 1);
         $this->pdf->SetFont('helvetica', '', 9);
 
-        $allOptions = array(
-            'cni' => 'Carte nationale d\'identité (recto-verso)',
-            'passeport' => 'Passeport (pages avec informations, photo, signature)',
-            'titre_sejour' => 'Titre de séjour (recto-verso)',
-            'acte_notarie' => 'Acte notarié',
-            'releve_compte' => 'Relevé de compte',
-            'avis_imposition' => 'Avis d\'imposition',
-            'justif_autre' => 'Autre',
-        );
+        $this->renderCheckbox('Carte nationale d\'identite (recto-verso)', in_array('cni', $justificatifs));
+        $this->renderCheckbox('Passeport (pages contenant vos informations, photo et signature)', in_array('passeport', $justificatifs));
+        $this->renderCheckbox('Titre de sejour (recto-verso)', in_array('titre_sejour', $justificatifs));
 
-        // Afficher TOUTES les options avec case cochee ou non
-        foreach ($allOptions as $key => $label) {
-            $checked = in_array($key, $justificatifs) ? '☑' : '☐';
-            $this->pdf->Cell(0, 5, $checked . ' ' . $label, 0, 1);
-        }
-
-        // Champ precision pour "Autre"
         $this->pdf->Ln(2);
-        $this->renderFormField('Autre (précision)', $form->justificatif_autre_detail);
 
-        $this->pdf->Ln(5);
+        // Justificatif Financier
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(0, 5, 'Justificatif Financier', 0, 1);
+        $this->pdf->SetFont('helvetica', '', 9);
+
+        // Sur une ligne
+        $this->pdf->Cell(5, 5, (in_array('acte_notarie', $justificatifs) ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(25, 5, 'Acte notarie', 0, 0);
+        $this->pdf->Cell(5, 5, (in_array('releve_compte', $justificatifs) ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(35, 5, 'Releve de compte', 0, 0);
+        $this->pdf->Cell(5, 5, (in_array('avis_imposition', $justificatifs) ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(35, 5, 'Avis d\'imposition', 0, 1);
+
+        // Autre
+        $isAutre = in_array('justif_autre', $justificatifs);
+        $this->pdf->Cell(5, 5, ($isAutre ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->Cell(15, 5, 'Autre', 0, 0);
+        $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
+        $this->pdf->Cell(140, 5, $form->justificatif_autre_detail, 'B', 1);
+
+        $this->pdf->Ln(8);
     }
 
     /**
-     * Rendu de la section Signature
+     * Section Signature
      */
     protected function renderSignature($form)
     {
-        $this->renderSectionTitle('DATE ET SIGNATURE');
-
-        $this->pdf->SetFont('helvetica', '', 9);
-        $this->pdf->SetDrawColor(180, 180, 180);
-
-        // Lieu et date - style formulaire avec lignes
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->Cell(25, 6, 'Fait le : ', 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
-        $dateVal = !empty($form->date_signature) ? $form->date_signature : '';
-        $this->pdf->Cell(50, 6, $dateVal, 'B', 0);
-
-        $this->pdf->Cell(10, 6, '', 0, 0); // Espace
-
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->Cell(10, 6, 'À : ', 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
-        $lieuVal = !empty($form->lieu_signature) ? $form->lieu_signature : '';
-        $this->pdf->Cell(80, 6, $lieuVal, 'B', 1);
-
-        $this->pdf->Ln(4);
-
-        // Case de reconnaissance
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        if ($form->acknowledged) {
-            $this->pdf->Cell(0, 6, '☑ Je reconnais avoir lu et accepté les termes du présent formulaire', 0, 1);
-        } else {
-            $this->pdf->Cell(0, 6, '☐ Je reconnais avoir lu et accepté les termes du présent formulaire', 0, 1);
-        }
-
-        $this->pdf->Ln(5);
-
-        // Zone de signature
-        $this->pdf->SetFont('helvetica', '', 8);
-        $this->pdf->Cell(0, 5, 'Signature (précédée de la mention « lu et approuvé ») :', 0, 1);
-
-        // Cadre signature
-        $this->pdf->SetDrawColor(0, 0, 0);
-        $startY = $this->pdf->GetY();
-        $this->pdf->Rect(15, $startY, 180, 30);
-
-        if ($form->acknowledged && !empty($form->signature_name)) {
-            // Mention "Lu et approuve"
-            $this->pdf->SetY($startY + 5);
-            $this->pdf->SetFont('helvetica', 'I', 10);
-            $this->pdf->Cell(0, 5, 'Lu et approuvé', 0, 1, 'C');
-
-            // Nom signature (style manuscrit)
-            $this->pdf->SetFont('times', 'BI', 16);
-            $this->pdf->SetTextColor(0, 0, 128);
-            $this->pdf->Cell(0, 8, $form->signature_name, 0, 1, 'C');
-
-            // Horodatage
-            $this->pdf->SetFont('helvetica', '', 8);
-            $this->pdf->SetTextColor(100, 100, 100);
-            $this->pdf->Cell(0, 5, $form->getFormattedSignature(), 0, 1, 'C');
-        }
-
-        // Reset position
-        $this->pdf->SetY($startY + 35);
-        $this->pdf->SetTextColor(0, 0, 0);
-    }
-
-    /**
-     * Rendu d'un titre de section
-     *
-     * @param string $title
-     */
-    protected function renderSectionTitle($title)
-    {
-        $this->pdf->SetFont('helvetica', 'B', 10);
-        $this->pdf->SetFillColor(0, 102, 153);
-        $this->pdf->SetTextColor(255, 255, 255);
-        $this->pdf->Cell(0, 7, ' ' . $title, 0, 1, 'L', true);
-        $this->pdf->SetTextColor(0, 0, 0);
-        $this->pdf->Ln(2);
-    }
-
-    /**
-     * Rendu d'un tableau de donnees simple (saute les champs vides)
-     *
-     * @param array $data
-     */
-    protected function renderDataTable($data)
-    {
         $this->pdf->SetFont('helvetica', '', 9);
 
-        foreach ($data as $row) {
-            if (!empty($row[1])) {
-                $this->pdf->SetFont('helvetica', 'B', 9);
-                $this->pdf->Cell(60, 5, $row[0] . ' :', 0, 0);
-                $this->pdf->SetFont('helvetica', '', 9);
-                $this->pdf->Cell(0, 5, $row[1], 0, 1);
+        // Date et Lieu + Signature sur meme ligne
+        $this->pdf->Cell(15, 6, 'Fait le', 0, 0);
+
+        // Format date JJ / MM / AAAA
+        $dateSignature = $form->date_signature;
+        $jour = '';
+        $mois = '';
+        $annee = '';
+        if (!empty($dateSignature)) {
+            $parts = explode('/', $dateSignature);
+            if (count($parts) == 3) {
+                $jour = $parts[0];
+                $mois = $parts[1];
+                $annee = $parts[2];
+            } elseif (strpos($dateSignature, '-') !== false) {
+                $parts = explode('-', $dateSignature);
+                if (count($parts) == 3) {
+                    $annee = $parts[0];
+                    $mois = $parts[1];
+                    $jour = $parts[2];
+                }
             }
         }
-    }
 
-    /**
-     * Rendu d'un tableau de donnees - affiche TOUS les champs meme vides
-     * Style formulaire papier avec ligne de saisie
-     *
-     * @param array $data
-     */
-    protected function renderDataTableAll($data)
-    {
+        $this->pdf->Cell(15, 6, $jour, 'B', 0, 'C');
+        $this->pdf->Cell(5, 6, '/', 0, 0, 'C');
+        $this->pdf->Cell(15, 6, $mois, 'B', 0, 'C');
+        $this->pdf->Cell(5, 6, '/', 0, 0, 'C');
+        $this->pdf->Cell(20, 6, $annee, 'B', 0, 'C');
+
+        $this->pdf->Cell(20, 6, '', 0, 0); // Espace
+
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(0, 6, 'Signature (precedee de la mention "lu et approuve")', 0, 1);
+
+        // Lieu
         $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Cell(5, 6, 'A', 0, 0);
+        $this->pdf->Cell(60, 6, $form->lieu_signature, 'B', 0);
 
-        foreach ($data as $row) {
-            $this->pdf->SetFont('helvetica', 'B', 9);
-            $this->pdf->Cell(60, 6, $row[0] . ' :', 0, 0);
-            $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->Ln(10);
 
-            // Valeur ou ligne vide pour saisie manuelle
-            $value = !empty($row[1]) ? $row[1] : '';
+        // Zone de signature (cadre)
+        $this->pdf->SetDrawColor(0, 0, 0);
+        $startY = $this->pdf->GetY();
 
-            // Dessiner une ligne de saisie style formulaire
-            $this->pdf->SetDrawColor(180, 180, 180);
-            $this->pdf->Cell(115, 6, $value, 'B', 1);
+        // Cadre signature a droite
+        $this->pdf->Rect(100, $startY - 15, 80, 35);
+
+        // Contenu signature si signee
+        if ($form->acknowledged && !empty($form->signature_name)) {
+            $this->pdf->SetXY(100, $startY - 10);
+            $this->pdf->SetFont('helvetica', 'I', 10);
+            $this->pdf->Cell(80, 5, 'Lu et approuve', 0, 1, 'C');
+
+            $this->pdf->SetX(100);
+            $this->pdf->SetFont('times', 'BI', 14);
+            $this->pdf->SetTextColor(0, 0, 128);
+            $this->pdf->Cell(80, 8, $form->signature_name, 0, 1, 'C');
+
+            $this->pdf->SetX(100);
+            $this->pdf->SetFont('helvetica', '', 7);
+            $this->pdf->SetTextColor(100, 100, 100);
+            $this->pdf->Cell(80, 4, $form->getFormattedSignature(), 0, 1, 'C');
         }
+
+        $this->pdf->SetY($startY + 25);
+        $this->pdf->SetTextColor(0, 0, 0);
     }
 
     /**
-     * Rendu d'un champ de formulaire avec ligne de saisie
-     *
-     * @param string $label
-     * @param string $value
-     * @param int $width Largeur du champ (defaut: 115)
+     * Affiche une case a cocher avec label
      */
-    protected function renderFormField($label, $value, $width = 115)
+    protected function renderCheckbox($label, $checked = false)
     {
+        $this->pdf->Cell(5, 5, ($checked ? chr(254) : chr(168)), 0, 0);
+        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->Cell(0, 5, $label, 0, 1);
         $this->pdf->SetFont('helvetica', '', 9);
-
-        if (!empty($label)) {
-            $this->pdf->SetFont('helvetica', 'B', 8);
-            $this->pdf->Cell(60, 5, $label . ' :', 0, 0);
-            $this->pdf->SetFont('helvetica', '', 9);
-        }
-
-        // Valeur ou vide
-        $displayValue = !empty($value) ? $value : '';
-
-        // Ligne de saisie
-        $this->pdf->SetDrawColor(180, 180, 180);
-        $cellWidth = !empty($label) ? $width : $width + 60;
-        $this->pdf->Cell($cellWidth, 6, $displayValue, 'B', 1);
     }
 
-    /**
-     * Sanitize le nom de fichier
-     *
-     * @param string $filename
-     * @return string
-     */
     protected function sanitizeFilename($filename)
     {
-        // Remplacer les caracteres speciaux
         $filename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $filename);
         $filename = preg_replace('/_+/', '_', $filename);
         return $filename;
