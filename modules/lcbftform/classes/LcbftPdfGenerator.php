@@ -70,7 +70,9 @@ class LcbftPdfGenerator
 
         $this->pdf->SetMargins(15, 15, 15);
         $this->pdf->SetAutoPageBreak(true, 15);
-        $this->pdf->SetFont('helvetica', '', 10);
+
+        // Utiliser dejavusans pour le support Unicode des cases a cocher
+        $this->pdf->SetFont('dejavusans', '', 10);
     }
 
     protected function generateContent($form, $order = null)
@@ -108,16 +110,16 @@ class LcbftPdfGenerator
     protected function renderHeader($order)
     {
         // Titre
-        $this->pdf->SetFont('helvetica', 'B', 14);
+        $this->pdf->SetFont('dejavusans', 'B', 14);
         $this->pdf->Cell(0, 8, 'FORMULAIRE LCB-FT', 0, 1, 'C');
 
-        $this->pdf->SetFont('helvetica', '', 10);
+        $this->pdf->SetFont('dejavusans', '', 10);
         $this->pdf->Cell(0, 5, 'Article L 561-16 du Code monetaire et financier', 0, 1, 'C');
 
         $this->pdf->Ln(4);
 
         // Texte d'introduction
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $intro = "Dans le cadre des obligations reglementaires relatives au dispositif de lutte contre le blanchiment des capitaux et le financement du terrorisme imposees a l'OR INVESTISSEMENT dans le cadre des operations effectuees aupres de ses Clients, nous vous prions de nous retourner le present formulaire dument complete, date et signe, accompagne d'un justificatif d'identite en cours de validite (recto-verso) des lors que la valeur de vos biens ou operations depassent la somme de 15 000 euros et/ou lorsque vous effectuez des operations successives.";
         $this->pdf->MultiCell(0, 4.5, $intro, 0, 'J');
 
@@ -130,11 +132,11 @@ class LcbftPdfGenerator
     protected function renderCoordonnees($form)
     {
         // Titre section
-        $this->pdf->SetFont('helvetica', 'B', 11);
+        $this->pdf->SetFont('dejavusans', 'B', 11);
         $this->pdf->Cell(0, 7, 'VOS COORDONNEES', 0, 1, 'C');
         $this->pdf->Ln(2);
 
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->SetDrawColor(0, 0, 0);
 
         // Nom de l'entreprise
@@ -145,14 +147,14 @@ class LcbftPdfGenerator
         $isMme = ($form->civilite == 'Mme' || $form->civilite == 'Madame');
         $isM = ($form->civilite == 'M.' || $form->civilite == 'M' || $form->civilite == 'Monsieur');
 
-        $this->pdf->Cell(5, 6, ($isMme ? chr(254) : chr(168)), 0, 0); // Checkbox
-        $this->pdf->Cell(12, 6, 'Mme.', 0, 0);
-        $this->pdf->Cell(5, 6, ($isM ? chr(254) : chr(168)), 0, 0);
-        $this->pdf->Cell(12, 6, 'M.', 0, 0);
-        $this->pdf->Cell(12, 6, 'Nom :', 0, 0);
-        $this->pdf->Cell(55, 6, $form->nom, 'B', 0);
-        $this->pdf->Cell(18, 6, 'Prenom :', 0, 0);
-        $this->pdf->Cell(61, 6, $form->prenom, 'B', 1);
+        $this->drawCheckbox($isMme);
+        $this->pdf->Cell(12, 5, 'Mme.', 0, 0);
+        $this->drawCheckbox($isM);
+        $this->pdf->Cell(8, 5, 'M.', 0, 0);
+        $this->pdf->Cell(12, 5, 'Nom :', 0, 0);
+        $this->pdf->Cell(55, 5, $form->nom, 'B', 0);
+        $this->pdf->Cell(18, 5, 'Prenom :', 0, 0);
+        $this->pdf->Cell(55, 5, $form->prenom, 'B', 1);
 
         // Profession
         $this->pdf->Cell(22, 6, 'Profession :', 0, 0);
@@ -189,10 +191,10 @@ class LcbftPdfGenerator
     protected function renderAttestation($form)
     {
         // Titre
-        $this->pdf->SetFont('helvetica', 'B', 11);
+        $this->pdf->SetFont('dejavusans', 'B', 11);
         $this->pdf->Cell(0, 7, 'ATTESTATION SUR L\'HONNEUR', 0, 1, 'C');
 
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(0, 5, '(Valable jusqu\'au 31 decembre de l\'annee en cours)', 0, 1, 'C');
         $this->pdf->Ln(2);
         $this->pdf->Cell(0, 5, 'J\'atteste sur l\'honneur des informations suivantes :', 0, 1);
@@ -200,12 +202,12 @@ class LcbftPdfGenerator
 
         // INFORMATIONS PATRIMONIALES
         $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->Cell(5, 5, chr(168), 0, 0); // Losange
+        $this->pdf->SetFont('dejavusans', 'B', 9);
+        $this->pdf->Cell(5, 5, html_entity_decode('&#9830;', ENT_NOQUOTES, 'UTF-8'), 0, 0); // Losange
         $this->pdf->Cell(0, 5, 'INFORMATIONS PATRIMONIALES', 0, 1);
         $this->pdf->SetTextColor(0, 0, 0);
 
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
 
         // Remunerations
         $this->pdf->MultiCell(0, 5, 'Remunerations brutes annuelles du Client (salaire, benefices, bonus, prime, pension de retraite, pension d\'invalidite...) :', 0, 'L');
@@ -215,27 +217,27 @@ class LcbftPdfGenerator
         $this->pdf->Cell(0, 5, 'Estimation du patrimoine total :', 0, 1);
 
         $patrimoine = $form->patrimoine_estimation;
-        $this->renderCheckbox('moins de 300 000 euros', ($patrimoine == 'less_300k'));
-        $this->renderCheckbox('de 300 000 EUR a 720 000 euros', ($patrimoine == '300k_720k'));
-        $this->renderCheckbox('de 720 000 EUR a 1,5 million d\'euros', ($patrimoine == '720k_1500k'));
+        $this->renderCheckboxLine('moins de 300 000 euros', ($patrimoine == 'less_300k'));
+        $this->renderCheckboxLine('de 300 000 EUR a 720 000 euros', ($patrimoine == '300k_720k'));
+        $this->renderCheckboxLine('de 720 000 EUR a 1,5 million d\'euros', ($patrimoine == '720k_1500k'));
 
         // Plus de 1,5M avec precision
         $isPlus1500k = ($patrimoine == 'more_1500k');
-        $this->pdf->Cell(5, 5, ($isPlus1500k ? chr(254) : chr(168)), 0, 0);
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->drawCheckbox($isPlus1500k);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(55, 5, 'plus de 1,5 million d\'euros', 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(20, 5, '-> Precisez', 0, 0);
-        $this->pdf->Cell(100, 5, ($isPlus1500k ? $form->patrimoine_precision : ''), 'B', 1);
+        $this->pdf->Cell(95, 5, $form->patrimoine_precision, 'B', 1);
 
         // IFI
         $this->pdf->Ln(2);
         $ifiOui = ($form->soumis_ifi == 1);
         $ifiNon = ($form->soumis_ifi === 0 || $form->soumis_ifi === '0');
         $this->pdf->Cell(75, 5, 'Etes-vous soumis (e) a l\'impot sur la Fortune Immobiliere ?', 0, 0);
-        $this->pdf->Cell(5, 5, ($ifiOui ? chr(254) : chr(168)), 0, 0);
+        $this->drawCheckbox($ifiOui);
         $this->pdf->Cell(10, 5, 'Oui', 0, 0);
-        $this->pdf->Cell(5, 5, ($ifiNon ? chr(254) : chr(168)), 0, 0);
+        $this->drawCheckbox($ifiNon);
         $this->pdf->Cell(10, 5, 'Non', 0, 1);
 
         $this->pdf->Ln(3);
@@ -248,11 +250,11 @@ class LcbftPdfGenerator
     {
         // Titre
         $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->Cell(5, 5, chr(168), 0, 0);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
+        $this->pdf->Cell(5, 5, html_entity_decode('&#9830;', ENT_NOQUOTES, 'UTF-8'), 0, 0);
         $this->pdf->Cell(0, 5, 'ORIGINE DES FONDS', 0, 1);
         $this->pdf->SetTextColor(0, 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
 
         $this->pdf->MultiCell(0, 4.5, 'En cas de pluralite d\'origine des fonds, veuillez fournir le detail dans la zone "commentaires", les dates, montants et origines.', 0, 'L');
         $this->pdf->Ln(1);
@@ -260,40 +262,40 @@ class LcbftPdfGenerator
         $origines = $form->getOrigineFonds();
 
         // Options simples
-        $this->renderCheckbox('Vente Immobiliere', in_array('vente_immo', $origines));
-        $this->renderCheckbox('Donation', in_array('donation', $origines));
-        $this->renderCheckbox('Heritage', in_array('heritage', $origines));
-        $this->renderCheckbox('Revenus ou Dividendes', in_array('revenus', $origines));
-        $this->renderCheckbox('Gains aux jeux', in_array('jeux', $origines));
+        $this->renderCheckboxLine('Vente Immobiliere', in_array('vente_immo', $origines));
+        $this->renderCheckboxLine('Donation', in_array('donation', $origines));
+        $this->renderCheckboxLine('Heritage', in_array('heritage', $origines));
+        $this->renderCheckboxLine('Revenus ou Dividendes', in_array('revenus', $origines));
+        $this->renderCheckboxLine('Gains aux jeux', in_array('jeux', $origines));
 
         // Cession d'actifs avec precision
         $isCession = in_array('cession', $origines);
-        $this->pdf->Cell(5, 5, ($isCession ? chr(254) : chr(168)), 0, 0);
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->drawCheckbox($isCession);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(75, 5, 'Cession d\'actifs (professionnels, Immobiliers, mobiliers...)', 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(20, 5, '-> Precisez', 0, 0);
-        $this->pdf->Cell(80, 5, $form->origine_cession_detail, 'B', 1);
+        $this->pdf->Cell(75, 5, $form->origine_cession_detail, 'B', 1);
 
         // Epargne personnelle avec precision
         $isEpargne = in_array('epargne', $origines);
-        $this->pdf->Cell(5, 5, ($isEpargne ? chr(254) : chr(168)), 0, 0);
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->drawCheckbox($isEpargne);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(35, 5, 'Epargne personnelle', 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(70, 5, '-> Precisez la date et l\'origine de l\'investissement initial :', 0, 0);
-        $this->pdf->Cell(70, 5, $form->origine_epargne_detail, 'B', 1);
+        $this->pdf->Cell(65, 5, $form->origine_epargne_detail, 'B', 1);
         // Ligne supplementaire
         $this->pdf->Cell(180, 5, '', 'B', 1);
 
         // Autre avec precision
         $isAutre = in_array('autre', $origines);
-        $this->pdf->Cell(5, 5, ($isAutre ? chr(254) : chr(168)), 0, 0);
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->drawCheckbox($isAutre);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(15, 5, 'Autre', 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
-        $this->pdf->Cell(140, 5, $form->origine_autre_detail, 'B', 1);
+        $this->pdf->Cell(135, 5, $form->origine_autre_detail, 'B', 1);
 
         // Nature du justificatif
         $this->pdf->Ln(2);
@@ -306,23 +308,23 @@ class LcbftPdfGenerator
      */
     protected function renderCommentaires($form)
     {
-        $this->pdf->SetFont('helvetica', 'I', 8);
+        $this->pdf->SetFont('dejavusans', 'I', 8);
         $this->pdf->Cell(0, 5, 'Exemples : acte notarie, releve de compte, avis d\'imposition, ...', 0, 1);
         $this->pdf->Ln(3);
 
         // Titre
         $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->Cell(5, 5, chr(168), 0, 0);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
+        $this->pdf->Cell(5, 5, html_entity_decode('&#9830;', ENT_NOQUOTES, 'UTF-8'), 0, 0);
         $this->pdf->Cell(0, 5, 'COMMENTAIRES :', 0, 1);
         $this->pdf->SetTextColor(0, 0, 0);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
 
         $this->pdf->Cell(0, 5, 'En cas de pluralite d\'origine des fonds, veuillez detailler les dates, montants et origines ci-dessous :', 0, 1);
         $this->pdf->Ln(3);
 
         // Tableau commentaires
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(35, 6, 'Date', 1, 0, 'L');
         $this->pdf->Cell(45, 6, 'Montant', 1, 0, 'L');
         $this->pdf->Cell(100, 6, 'Origine', 1, 1, 'L');
@@ -349,8 +351,8 @@ class LcbftPdfGenerator
     {
         // Titre
         $this->pdf->SetTextColor($this->greenColor[0], $this->greenColor[1], $this->greenColor[2]);
-        $this->pdf->SetFont('helvetica', 'B', 9);
-        $this->pdf->Cell(5, 5, chr(168), 0, 0);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
+        $this->pdf->Cell(5, 5, html_entity_decode('&#9830;', ENT_NOQUOTES, 'UTF-8'), 0, 0);
         $this->pdf->Cell(0, 5, 'JUSTIFICATIFS FOURNIS :', 0, 1);
         $this->pdf->SetTextColor(0, 0, 0);
         $this->pdf->Ln(2);
@@ -358,35 +360,35 @@ class LcbftPdfGenerator
         $justificatifs = $form->getJustificatifs();
 
         // Justificatif d'identite
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(0, 5, 'Justificatif D\'identite (en cours de validite)', 0, 1);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
 
-        $this->renderCheckbox('Carte nationale d\'identite (recto-verso)', in_array('cni', $justificatifs));
-        $this->renderCheckbox('Passeport (pages contenant vos informations, photo et signature)', in_array('passeport', $justificatifs));
-        $this->renderCheckbox('Titre de sejour (recto-verso)', in_array('titre_sejour', $justificatifs));
+        $this->renderCheckboxLine('Carte nationale d\'identite (recto-verso)', in_array('cni', $justificatifs));
+        $this->renderCheckboxLine('Passeport (pages contenant vos informations, photo et signature)', in_array('passeport', $justificatifs));
+        $this->renderCheckboxLine('Titre de sejour (recto-verso)', in_array('titre_sejour', $justificatifs));
 
         $this->pdf->Ln(2);
 
         // Justificatif Financier
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(0, 5, 'Justificatif Financier', 0, 1);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
 
         // Sur une ligne
-        $this->pdf->Cell(5, 5, (in_array('acte_notarie', $justificatifs) ? chr(254) : chr(168)), 0, 0);
+        $this->drawCheckbox(in_array('acte_notarie', $justificatifs));
         $this->pdf->Cell(25, 5, 'Acte notarie', 0, 0);
-        $this->pdf->Cell(5, 5, (in_array('releve_compte', $justificatifs) ? chr(254) : chr(168)), 0, 0);
+        $this->drawCheckbox(in_array('releve_compte', $justificatifs));
         $this->pdf->Cell(35, 5, 'Releve de compte', 0, 0);
-        $this->pdf->Cell(5, 5, (in_array('avis_imposition', $justificatifs) ? chr(254) : chr(168)), 0, 0);
+        $this->drawCheckbox(in_array('avis_imposition', $justificatifs));
         $this->pdf->Cell(35, 5, 'Avis d\'imposition', 0, 1);
 
         // Autre
         $isAutre = in_array('justif_autre', $justificatifs);
-        $this->pdf->Cell(5, 5, ($isAutre ? chr(254) : chr(168)), 0, 0);
+        $this->drawCheckbox($isAutre);
         $this->pdf->Cell(15, 5, 'Autre', 0, 0);
         $this->pdf->Cell(20, 5, '-> Precisez :', 0, 0);
-        $this->pdf->Cell(140, 5, $form->justificatif_autre_detail, 'B', 1);
+        $this->pdf->Cell(135, 5, $form->justificatif_autre_detail, 'B', 1);
 
         $this->pdf->Ln(8);
     }
@@ -396,7 +398,7 @@ class LcbftPdfGenerator
      */
     protected function renderSignature($form)
     {
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
 
         // Date et Lieu + Signature sur meme ligne
         $this->pdf->Cell(15, 6, 'Fait le', 0, 0);
@@ -430,11 +432,11 @@ class LcbftPdfGenerator
 
         $this->pdf->Cell(20, 6, '', 0, 0); // Espace
 
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(0, 6, 'Signature (precedee de la mention "lu et approuve")', 0, 1);
 
         // Lieu
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(5, 6, 'A', 0, 0);
         $this->pdf->Cell(60, 6, $form->lieu_signature, 'B', 0);
 
@@ -450,7 +452,7 @@ class LcbftPdfGenerator
         // Contenu signature si signee
         if ($form->acknowledged && !empty($form->signature_name)) {
             $this->pdf->SetXY(100, $startY - 10);
-            $this->pdf->SetFont('helvetica', 'I', 10);
+            $this->pdf->SetFont('dejavusans', 'I', 10);
             $this->pdf->Cell(80, 5, 'Lu et approuve', 0, 1, 'C');
 
             $this->pdf->SetX(100);
@@ -459,7 +461,7 @@ class LcbftPdfGenerator
             $this->pdf->Cell(80, 8, $form->signature_name, 0, 1, 'C');
 
             $this->pdf->SetX(100);
-            $this->pdf->SetFont('helvetica', '', 7);
+            $this->pdf->SetFont('dejavusans', '', 7);
             $this->pdf->SetTextColor(100, 100, 100);
             $this->pdf->Cell(80, 4, $form->getFormattedSignature(), 0, 1, 'C');
         }
@@ -469,14 +471,41 @@ class LcbftPdfGenerator
     }
 
     /**
-     * Affiche une case a cocher avec label
+     * Dessine une case a cocher (carre) - coche ou non
      */
-    protected function renderCheckbox($label, $checked = false)
+    protected function drawCheckbox($checked = false)
     {
-        $this->pdf->Cell(5, 5, ($checked ? chr(254) : chr(168)), 0, 0);
-        $this->pdf->SetFont('helvetica', 'B', 9);
+        $x = $this->pdf->GetX();
+        $y = $this->pdf->GetY();
+
+        // Dessiner le carre de la case
+        $this->pdf->SetDrawColor(0, 0, 0);
+        $this->pdf->SetLineWidth(0.3);
+        $this->pdf->Rect($x + 0.5, $y + 1, 3.5, 3.5);
+
+        // Si coche, dessiner un X ou une coche
+        if ($checked) {
+            $this->pdf->SetLineWidth(0.5);
+            // Dessiner un X
+            $this->pdf->Line($x + 1, $y + 1.5, $x + 3.5, $y + 4);
+            $this->pdf->Line($x + 3.5, $y + 1.5, $x + 1, $y + 4);
+        }
+
+        $this->pdf->SetLineWidth(0.2);
+
+        // Avancer le curseur
+        $this->pdf->SetX($x + 6);
+    }
+
+    /**
+     * Affiche une ligne avec case a cocher et label
+     */
+    protected function renderCheckboxLine($label, $checked = false)
+    {
+        $this->drawCheckbox($checked);
+        $this->pdf->SetFont('dejavusans', 'B', 9);
         $this->pdf->Cell(0, 5, $label, 0, 1);
-        $this->pdf->SetFont('helvetica', '', 9);
+        $this->pdf->SetFont('dejavusans', '', 9);
     }
 
     protected function sanitizeFilename($filename)
