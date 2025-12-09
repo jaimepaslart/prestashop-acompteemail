@@ -232,9 +232,10 @@ class LcbftPdfGenerator
         $this->pdf->Cell(150, 5, $form->patrimoine_precision, 'B', 1);
 
         // IFI - sur deux lignes pour eviter chevauchement
+        // Ne cocher que si explicitement choisi (pas de coche par defaut)
         $this->pdf->Ln(2);
-        $ifiOui = ($form->soumis_ifi == 1);
-        $ifiNon = ($form->soumis_ifi === 0 || $form->soumis_ifi === '0');
+        $ifiOui = ($form->soumis_ifi === 1 || $form->soumis_ifi === '1' || $form->soumis_ifi === 'oui');
+        $ifiNon = ($form->soumis_ifi === 'non' || (isset($form->soumis_ifi) && $form->soumis_ifi !== null && $form->soumis_ifi !== '' && !$ifiOui));
         $this->pdf->Cell(0, 5, 'Etes-vous soumis (e) a l\'impot sur la Fortune Immobiliere ?', 0, 1);
         $this->pdf->Cell(10, 5, '', 0, 0); // Indentation
         $this->drawCheckbox($ifiOui);
@@ -445,31 +446,37 @@ class LcbftPdfGenerator
 
         $this->pdf->Ln(10);
 
-        // Zone de signature (cadre)
+        // Zone de signature (cadre) - agrandie pour eviter debordement
         $this->pdf->SetDrawColor(0, 0, 0);
         $startY = $this->pdf->GetY();
 
-        // Cadre signature a droite
-        $this->pdf->Rect(100, $startY - 15, 80, 35);
+        // Cadre signature a droite - hauteur augmentee de 35 a 45
+        $boxX = 100;
+        $boxY = $startY - 15;
+        $boxW = 80;
+        $boxH = 45;
+        $this->pdf->Rect($boxX, $boxY, $boxW, $boxH);
 
         // Contenu signature si signee
         if ($form->acknowledged && !empty($form->signature_name)) {
-            $this->pdf->SetXY(100, $startY - 10);
+            $this->pdf->SetXY($boxX, $boxY + 3);
             $this->pdf->SetFont('dejavusans', 'I', 10);
-            $this->pdf->Cell(80, 5, 'Lu et approuve', 0, 1, 'C');
+            $this->pdf->Cell($boxW, 5, 'Lu et approuve', 0, 1, 'C');
 
-            $this->pdf->SetX(100);
+            $this->pdf->SetX($boxX);
             $this->pdf->SetFont('times', 'BI', 14);
             $this->pdf->SetTextColor(0, 0, 128);
-            $this->pdf->Cell(80, 8, $form->signature_name, 0, 1, 'C');
+            $this->pdf->Cell($boxW, 8, $form->signature_name, 0, 1, 'C');
 
-            $this->pdf->SetX(100);
-            $this->pdf->SetFont('dejavusans', '', 7);
+            // Texte signature electronique - police plus petite pour tenir dans la case
+            $this->pdf->SetX($boxX);
+            $this->pdf->SetFont('dejavusans', '', 6);
             $this->pdf->SetTextColor(100, 100, 100);
-            $this->pdf->Cell(80, 4, $form->getFormattedSignature(), 0, 1, 'C');
+            $signatureText = $form->getFormattedSignature();
+            $this->pdf->MultiCell($boxW, 4, $signatureText, 0, 'C');
         }
 
-        $this->pdf->SetY($startY + 25);
+        $this->pdf->SetY($startY + 35);
         $this->pdf->SetTextColor(0, 0, 0);
     }
 
