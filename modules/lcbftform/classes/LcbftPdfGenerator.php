@@ -404,9 +404,6 @@ class LcbftPdfGenerator
     {
         $this->pdf->SetFont('dejavusans', '', 9);
 
-        // Date et Lieu + Signature sur meme ligne
-        $this->pdf->Cell(15, 6, 'Fait le', 0, 0);
-
         // Format date JJ / MM / AAAA
         $dateSignature = $form->date_signature;
         $jour = '';
@@ -428,18 +425,19 @@ class LcbftPdfGenerator
             }
         }
 
-        $this->pdf->Cell(15, 6, $jour, 'B', 0, 'C');
+        // Ligne 1: Date a gauche, label signature a droite
+        $this->pdf->Cell(15, 6, 'Fait le', 0, 0);
+        $this->pdf->Cell(12, 6, $jour, 'B', 0, 'C');
         $this->pdf->Cell(5, 6, '/', 0, 0, 'C');
-        $this->pdf->Cell(15, 6, $mois, 'B', 0, 'C');
+        $this->pdf->Cell(12, 6, $mois, 'B', 0, 'C');
         $this->pdf->Cell(5, 6, '/', 0, 0, 'C');
-        $this->pdf->Cell(20, 6, $annee, 'B', 0, 'C');
+        $this->pdf->Cell(18, 6, $annee, 'B', 0, 'C');
 
-        $this->pdf->Cell(20, 6, '', 0, 0); // Espace
+        // Label signature - positionne a droite avec police plus petite
+        $this->pdf->SetFont('dejavusans', 'B', 8);
+        $this->pdf->Cell(0, 6, 'Signature (precedee de la mention "lu et approuve")', 0, 1, 'R');
 
-        $this->pdf->SetFont('dejavusans', 'B', 9);
-        $this->pdf->Cell(0, 6, 'Signature (precedee de la mention "lu et approuve")', 0, 1);
-
-        // Lieu
+        // Ligne 2: Lieu
         $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(5, 6, 'A', 0, 0);
         $this->pdf->Cell(60, 6, $form->lieu_signature, 'B', 0);
