@@ -425,39 +425,41 @@ class LcbftPdfGenerator
             }
         }
 
-        // Ligne 1: Date a gauche, label signature a droite
+        // Ligne 1: Date a gauche
         $this->pdf->Cell(15, 6, 'Fait le', 0, 0);
         $this->pdf->Cell(12, 6, $jour, 'B', 0, 'C');
         $this->pdf->Cell(5, 6, '/', 0, 0, 'C');
         $this->pdf->Cell(12, 6, $mois, 'B', 0, 'C');
         $this->pdf->Cell(5, 6, '/', 0, 0, 'C');
         $this->pdf->Cell(18, 6, $annee, 'B', 0, 'C');
-
-        // Label signature - positionne a droite avec police plus petite
-        $this->pdf->SetFont('dejavusans', 'B', 8);
-        $this->pdf->Cell(0, 6, 'Signature (precedee de la mention "lu et approuve")', 0, 1, 'R');
+        $this->pdf->Ln();
 
         // Ligne 2: Lieu
         $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(5, 6, 'A', 0, 0);
         $this->pdf->Cell(60, 6, $form->lieu_signature, 'B', 0);
 
-        $this->pdf->Ln(10);
+        $this->pdf->Ln(8);
 
-        // Zone de signature (cadre) - agrandie pour eviter debordement
+        // Zone de signature (cadre) a droite
         $this->pdf->SetDrawColor(0, 0, 0);
         $startY = $this->pdf->GetY();
 
-        // Cadre signature a droite - hauteur augmentee de 35 a 45
-        $boxX = 100;
-        $boxY = $startY - 15;
-        $boxW = 80;
-        $boxH = 45;
+        // Cadre signature positionne a droite de la date/lieu
+        $boxX = 95;
+        $boxY = $startY - 22;
+        $boxW = 90;
+        $boxH = 50;
         $this->pdf->Rect($boxX, $boxY, $boxW, $boxH);
+
+        // Label signature en haut de la case
+        $this->pdf->SetXY($boxX + 2, $boxY + 2);
+        $this->pdf->SetFont('dejavusans', 'B', 7);
+        $this->pdf->MultiCell($boxW - 4, 4, 'Signature (precedee de la mention "lu et approuve")', 0, 'C');
 
         // Contenu signature si signee
         if ($form->acknowledged && !empty($form->signature_name)) {
-            $this->pdf->SetXY($boxX, $boxY + 3);
+            $this->pdf->SetXY($boxX, $boxY + 12);
             $this->pdf->SetFont('dejavusans', 'I', 10);
             $this->pdf->Cell($boxW, 5, 'Lu et approuve', 0, 1, 'C');
 
@@ -466,7 +468,7 @@ class LcbftPdfGenerator
             $this->pdf->SetTextColor(0, 0, 128);
             $this->pdf->Cell($boxW, 8, $form->signature_name, 0, 1, 'C');
 
-            // Texte signature electronique - police plus petite pour tenir dans la case
+            // Texte signature electronique
             $this->pdf->SetX($boxX);
             $this->pdf->SetFont('dejavusans', '', 6);
             $this->pdf->SetTextColor(100, 100, 100);
@@ -474,7 +476,7 @@ class LcbftPdfGenerator
             $this->pdf->MultiCell($boxW, 4, $signatureText, 0, 'C');
         }
 
-        $this->pdf->SetY($startY + 35);
+        $this->pdf->SetY($startY + 30);
         $this->pdf->SetTextColor(0, 0, 0);
     }
 
