@@ -718,9 +718,7 @@
     }
 }
 
-.lcbft-form-container:has(.lcbft-blocking-alert) {
-    animation: lcbft-pulse 2s ease-in-out infinite;
-}
+/* Animation désactivée pour l'alerte bloquante */
 
 @keyframes lcbft-shake {
     0%, 100% { transform: translateX(0); }
