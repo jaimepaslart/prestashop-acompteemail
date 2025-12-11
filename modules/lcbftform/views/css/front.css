@@ -77,13 +77,53 @@
     box-shadow: 0 0 0 4px var(--lcbft-primary-light);
 }
 
+/* Masquer le contenu par defaut (comme les autres etapes PrestaShop) */
 #checkout-lcbft-step .content {
     padding: 0 20px 20px;
+    display: none;
+}
+
+/* Afficher le contenu seulement quand l'etape est courante */
+#checkout-lcbft-step.-current .content {
+    display: block;
+}
+
+/* Icone check visible seulement quand complete */
+#checkout-lcbft-step .step-title .done {
+    display: none;
+    color: var(--lcbft-success);
+}
+
+#checkout-lcbft-step.-complete .step-title .done {
+    display: inline-block;
+}
+
+/* Lien edit visible seulement quand complete et pas courante */
+#checkout-lcbft-step .step-title .step-edit {
+    display: none;
+    margin-left: auto;
+}
+
+#checkout-lcbft-step.-complete:not(.-current) .step-title .step-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+#checkout-lcbft-step.-complete:not(.-current) .step-title .step-edit:hover {
+    color: var(--lcbft-primary);
+}
+
+/* Etape non accessible - griser le titre */
+#checkout-lcbft-step:not(.-reachable):not(.-current):not(.-complete) .step-title {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Bouton continuer dans l'etape */
 #lcbft-continue-btn {
-    background: linear-gradient(135deg, var(--lcbft-success) 0%, #16a34a 100%);
+    background: #8b9dc3;
     border: none;
     padding: 14px 32px;
     font-size: 1rem;
@@ -116,14 +156,14 @@
 }
 
 .lcbft-form-container .card-header.lcbft-header {
-    background: linear-gradient(135deg, var(--lcbft-primary) 0%, var(--lcbft-primary-dark) 100%);
+    background: #8b9dc3;
     color: #fff;
     padding: 20px 24px;
     border-bottom: none;
 }
 
 .lcbft-form-container .lcbft-header.lcbft-header-valid {
-    background: linear-gradient(135deg, var(--lcbft-success) 0%, #16a34a 100%);
+    background: #22c55e;
 }
 
 .lcbft-form-container .lcbft-header h2 {
@@ -509,7 +549,7 @@
 }
 
 #lcbft-submit-btn {
-    background: linear-gradient(135deg, var(--lcbft-primary) 0%, var(--lcbft-primary-dark) 100%);
+    background: #8b9dc3;
     border: none;
     padding: 16px 40px;
     font-size: 1.1rem;

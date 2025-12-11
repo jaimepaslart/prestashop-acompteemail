@@ -45,12 +45,6 @@ class LcbftformValidationModuleFrontController extends ModuleFrontController
      */
     public function postProcess()
     {
-        // Verifier que le client est connecte
-        if (!$this->context->customer->isLogged()) {
-            $this->ajaxResponse(false, $this->module->l('Vous devez être connecté pour remplir ce formulaire.', 'validation'));
-            return;
-        }
-
         // Verifier le panier
         $idCart = (int) $this->context->cart->id;
         if ($idCart <= 0) {
@@ -58,7 +52,14 @@ class LcbftformValidationModuleFrontController extends ModuleFrontController
             return;
         }
 
-        $idCustomer = (int) $this->context->customer->id;
+        // Recuperer l'ID client (connecte ou invite)
+        $idCustomer = 0;
+        if ($this->context->customer && $this->context->customer->isLogged()) {
+            $idCustomer = (int) $this->context->customer->id;
+        } elseif ($this->context->cart->id_customer > 0) {
+            // Client invite avec panier
+            $idCustomer = (int) $this->context->cart->id_customer;
+        }
 
         // Determiner l'action
         $action = Tools::getValue('action', 'save');
@@ -138,7 +139,14 @@ class LcbftformValidationModuleFrontController extends ModuleFrontController
         $form->remunerations_annuelles = $this->sanitizeString(Tools::getValue('remunerations_annuelles', ''));
         $form->patrimoine_estimation = $this->sanitizeString(Tools::getValue('patrimoine_estimation', ''));
         $form->patrimoine_precision = $this->sanitizeString(Tools::getValue('patrimoine_precision', ''));
-        $form->soumis_ifi = (int) Tools::getValue('soumis_ifi', 0);
+
+        // IFI : null si non renseigne, 0 pour Non, 1 pour Oui
+        $soumisIfiValue = Tools::getValue('soumis_ifi', '');
+        if ($soumisIfiValue === '' || $soumisIfiValue === false) {
+            $form->soumis_ifi = null;
+        } else {
+            $form->soumis_ifi = (int) $soumisIfiValue;
+        }
 
         // Origine des fonds
         $origineFonds = Tools::getValue('origine_fonds', array());

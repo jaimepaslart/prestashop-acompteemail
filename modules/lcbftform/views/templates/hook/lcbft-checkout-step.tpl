@@ -13,8 +13,8 @@
          data-step="lcbft"
 >
     <h1 class="step-title h3">
-        <span class="step-number">{$lcbft_position|intval}.</span>
         {l s='Formulaire reglementaire' mod='lcbftform'}
+        <i class="fa fa-check rtl-no-flip done" aria-hidden="true"></i>
         <span class="step-edit text-muted"><i class="fa fa-pencil" aria-hidden="true"></i> {l s='edit' d='Shop.Theme.Actions'}</span>
     </h1>
 
@@ -24,7 +24,11 @@
                 {l s='Veuillez d\'abord remplir vos informations personnelles.' mod='lcbftform'}
             </p>
         {else}
-            {$lcbft_form_content nofilter}
+            {if $lcbft_form_content}
+                {$lcbft_form_content nofilter}
+            {else}
+                <p class="alert alert-warning">Chargement du formulaire...</p>
+            {/if}
 
             {if $lcbft_step_is_complete}
                 <div class="clearfix mt-3">

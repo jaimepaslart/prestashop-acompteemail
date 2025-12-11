@@ -12,9 +12,9 @@
     <div class="card-header lcbft-header {if isset($lcbft_form_valid) && $lcbft_form_valid}lcbft-header-valid{/if}">
         <h2 class="h4 mb-0">
             {if isset($lcbft_form_valid) && $lcbft_form_valid}
-                <i class="material-icons" style="color: #4caf50;">&#xE86C;</i>
+                ✅
             {else}
-                <i class="material-icons" style="color: #ff9800;">&#xE002;</i>
+                📋
             {/if}
             {l s='FORMULAIRE LCB-FT' mod='lcbftform'}
             {if isset($lcbft_form_valid) && $lcbft_form_valid}
@@ -32,7 +32,7 @@
         {* Si formulaire deja valide, afficher un resume *}
         {if isset($lcbft_form_valid) && $lcbft_form_valid && isset($lcbft_form) && $lcbft_form}
             <div class="alert alert-success">
-                <strong><i class="material-icons" style="vertical-align: middle;">&#xE86C;</i> {l s='Formulaire LCB-FT signé avec succès' mod='lcbftform'}</strong>
+                <strong>✅ {l s='Formulaire LCB-FT signé avec succès' mod='lcbftform'}</strong>
                 <p class="mb-0 mt-2">
                     {l s='Signé par' mod='lcbftform'} <strong>{$lcbft_form->prenom|escape:'htmlall':'UTF-8'} {$lcbft_form->nom|escape:'htmlall':'UTF-8'}</strong>
                     {l s='le' mod='lcbftform'} {$lcbft_form->signed_at|date_format:'%d/%m/%Y à %H:%M'|escape:'htmlall':'UTF-8'}
@@ -44,7 +44,7 @@
         {else}
             {* Alerte bloquante si non signe *}
             <div class="alert alert-warning lcbft-blocking-alert">
-                <strong><i class="material-icons" style="vertical-align: middle;">&#xE002;</i> {l s='Action requise' mod='lcbftform'}</strong>
+                <strong>⚠️ {l s='Action requise' mod='lcbftform'}</strong>
                 <p class="mb-0">{l s='Vous devez remplir et signer ce formulaire réglementaire pour pouvoir procéder au paiement.' mod='lcbftform'}</p>
             </div>
         {/if}
@@ -217,12 +217,12 @@
                     <div class="lcbft-radio-group">
                         <label class="lcbft-radio">
                             <input type="radio" name="soumis_ifi" value="1"
-                                   {if isset($lcbft_form) && $lcbft_form && $lcbft_form->soumis_ifi == 1}checked{/if}>
+                                   {if isset($lcbft_form) && $lcbft_form && ($lcbft_form->soumis_ifi === '1' || $lcbft_form->soumis_ifi === 1)}checked{/if}>
                             <span>{l s='Oui' mod='lcbftform'}</span>
                         </label>
                         <label class="lcbft-radio">
                             <input type="radio" name="soumis_ifi" value="0"
-                                   {if !isset($lcbft_form) || !$lcbft_form || $lcbft_form->soumis_ifi == 0}checked{/if}>
+                                   {if isset($lcbft_form) && $lcbft_form && ($lcbft_form->soumis_ifi === '0' || $lcbft_form->soumis_ifi === 0)}checked{/if}>
                             <span>{l s='Non' mod='lcbftform'}</span>
                         </label>
                     </div>
@@ -460,8 +460,7 @@
                 <div id="lcbft-success-message" class="alert alert-success" style="display: none;"></div>
 
                 <button type="submit" id="lcbft-submit-btn" class="btn btn-primary btn-lg">
-                    <i class="material-icons">&#xE876;</i>
-                    {l s='Valider et signer le formulaire LCB-FT' mod='lcbftform'}
+                    ✍️ {l s='Valider et signer le formulaire LCB-FT' mod='lcbftform'}
                 </button>
 
                 <p class="lcbft-mandatory-notice">

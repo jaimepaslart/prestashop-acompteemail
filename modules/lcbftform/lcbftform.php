@@ -365,13 +365,15 @@ class LcbftForm extends Module
      * Hook displayLcbftFormStatus - Retourne le statut du formulaire
      *
      * Retourne '1' si le formulaire est complet et signe, '0' sinon
+     * Supporte les clients connectes ET les invites (verification par cart ID)
      *
      * @param array $params
      * @return string
      */
     public function hookDisplayLcbftFormStatus($params)
     {
-        if (!$this->context->customer->isLogged()) {
+        // Verifier par cart ID (fonctionne pour connectes et invites)
+        if (!$this->context->cart || !$this->context->cart->id) {
             return '0';
         }
 
@@ -401,12 +403,11 @@ class LcbftForm extends Module
         // Verifier le statut du formulaire
         $isComplete = ($this->hookDisplayLcbftFormStatus($params) === '1');
 
-        // Verifier si l'etape precedente (personal-info) est complete
-        // On considere qu'elle est complete si le client est connecte
-        $previousStepComplete = $this->context->customer->isLogged();
-
-        // Determiner l'etat de l'etape
-        $stepIsReachable = $previousStepComplete;
+        // Le hook displayLcbftCheckoutStep est appele UNIQUEMENT apres l'etape
+        // "Informations personnelles" dans checkout-process.tpl
+        // Donc si ce hook est appele, l'etape precedente est forcement complete.
+        // On rend l'etape toujours accessible sur la page checkout.
+        $stepIsReachable = true;
         $stepIsComplete = $isComplete;
         $stepIsCurrent = $stepIsReachable && !$stepIsComplete;
 
@@ -435,14 +436,32 @@ class LcbftForm extends Module
      */
     protected function renderLcbftForm()
     {
-        // Verifier que le client est connecte
-        if (!$this->context->customer->isLogged()) {
-            return '';
+        // Verifier qu'on a un panier
+        if (!$this->context->cart || !$this->context->cart->id) {
+            return '<div class="alert alert-warning">Panier non disponible. Veuillez ajouter un produit au panier.</div>';
+        }
+
+        // Debug: verifier que le panier existe
+        $idCart = (int) $this->context->cart->id;
+        if ($idCart <= 0) {
+            return '<div class="alert alert-danger">ID Panier invalide.</div>';
+        }
+
+        // Recuperer l'ID client (connecte ou guest)
+        $idCustomer = 0;
+
+        // Methode 1: Client connecte
+        if ($this->context->customer && $this->context->customer->isLogged()) {
+            $idCustomer = (int) $this->context->customer->id;
+        }
+
+        // Methode 2: Panier avec client associe (guest checkout)
+        if ($idCustomer == 0 && $this->context->cart->id_customer > 0) {
+            $idCustomer = (int) $this->context->cart->id_customer;
         }
 
         // Recuperer ou creer le formulaire pour ce panier
         $idCart = (int) $this->context->cart->id;
-        $idCustomer = (int) $this->context->customer->id;
 
         $form = LcbftFormModel::getByCartId($idCart);
 
@@ -452,20 +471,41 @@ class LcbftForm extends Module
         // Si pas de formulaire existant, pre-remplir avec les donnees client
         $customerData = array();
         if (!$form) {
-            $customer = $this->context->customer;
-            $address = new Address(Address::getFirstCustomerAddressId($customer->id));
+            // Recuperer le client (connecte ou guest)
+            $customer = null;
+            if ($this->context->customer && $this->context->customer->isLogged()) {
+                $customer = $this->context->customer;
+            } elseif ($idCustomer > 0) {
+                $customer = new Customer($idCustomer);
+                if (!Validate::isLoadedObject($customer)) {
+                    $customer = null;
+                }
+            }
 
-            $customerData = array(
-                'civilite' => ($customer->id_gender == 1) ? 'M' : 'Mme',
-                'nom' => $customer->lastname,
-                'prenom' => $customer->firstname,
-                'email' => $customer->email,
-                'adresse' => Validate::isLoadedObject($address) ? $address->address1 : '',
-                'code_postal' => Validate::isLoadedObject($address) ? $address->postcode : '',
-                'ville' => Validate::isLoadedObject($address) ? $address->city : '',
-                'pays' => Validate::isLoadedObject($address) ? Country::getNameById($this->context->language->id, $address->id_country) : '',
-                'telephone' => Validate::isLoadedObject($address) ? ($address->phone_mobile ? $address->phone_mobile : $address->phone) : '',
-            );
+            // Recuperer l'adresse (du panier ou du client)
+            $address = null;
+            if ($this->context->cart->id_address_delivery > 0) {
+                $address = new Address($this->context->cart->id_address_delivery);
+            } elseif ($customer && $customer->id) {
+                $addressId = Address::getFirstCustomerAddressId($customer->id);
+                if ($addressId) {
+                    $address = new Address($addressId);
+                }
+            }
+
+            if ($customer) {
+                $customerData = array(
+                    'civilite' => ($customer->id_gender == 1) ? 'M' : 'Mme',
+                    'nom' => $customer->lastname,
+                    'prenom' => $customer->firstname,
+                    'email' => $customer->email,
+                    'adresse' => ($address && Validate::isLoadedObject($address)) ? $address->address1 : '',
+                    'code_postal' => ($address && Validate::isLoadedObject($address)) ? $address->postcode : '',
+                    'ville' => ($address && Validate::isLoadedObject($address)) ? $address->city : '',
+                    'pays' => ($address && Validate::isLoadedObject($address)) ? Country::getNameById($this->context->language->id, $address->id_country) : '',
+                    'telephone' => ($address && Validate::isLoadedObject($address)) ? ($address->phone_mobile ? $address->phone_mobile : $address->phone) : '',
+                );
+            }
         }
 
         // Preparer les variables pour le template
@@ -480,7 +520,22 @@ class LcbftForm extends Module
             'lcbft_countries' => Country::getCountries($this->context->language->id, true),
         ));
 
-        return $this->display(__FILE__, 'views/templates/hook/checkout_form.tpl');
+        $templatePath = 'views/templates/hook/checkout_form.tpl';
+        $fullPath = dirname(__FILE__) . '/' . $templatePath;
+
+        // Verifier que le template existe
+        if (!file_exists($fullPath)) {
+            return '<div class="alert alert-danger">Template non trouve: ' . $templatePath . '</div>';
+        }
+
+        $output = $this->display(__FILE__, $templatePath);
+
+        // Si le rendu est vide, afficher un message
+        if (empty($output)) {
+            return '<div class="alert alert-info">Le formulaire est en cours de chargement... (Cart: ' . $idCart . ', Customer: ' . $idCustomer . ')</div>';
+        }
+
+        return $output;
     }
 
     /**
@@ -570,10 +625,19 @@ class LcbftForm extends Module
             return '';
         }
 
+        // Construire l'URL avec le token de securite pour les invites
+        $downloadParams = array('id_order' => (int) $order->id);
+
+        // Ajouter le secure_key pour permettre l'acces aux invites
+        $customer = new Customer((int) $order->id_customer);
+        if (Validate::isLoadedObject($customer) && !empty($customer->secure_key)) {
+            $downloadParams['key'] = $customer->secure_key;
+        }
+
         $downloadUrl = $this->context->link->getModuleLink(
             $this->name,
             'download',
-            array('id_order' => (int) $order->id),
+            $downloadParams,
             true
         );
 

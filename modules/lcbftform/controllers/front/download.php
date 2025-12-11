@@ -3,6 +3,7 @@
  * Controleur Front - Telechargement PDF du formulaire LCB-FT
  *
  * Permet au client de telecharger son formulaire LCB-FT signe.
+ * Supporte les clients connectes ET les invites (via token securise).
  *
  * @author    Paul Bihr
  * @copyright 2025 Paul Bihr
@@ -20,15 +21,11 @@ class LcbftformDownloadModuleFrontController extends ModuleFrontController
 {
     /**
      * Initialisation du controleur
+     * Ne pas rediriger vers login - on gere l'acces dans postProcess
      */
     public function init()
     {
         parent::init();
-
-        // Verifier que le client est connecte
-        if (!$this->context->customer->isLogged()) {
-            Tools::redirect('index.php?controller=authentication');
-        }
     }
 
     /**
@@ -37,6 +34,7 @@ class LcbftformDownloadModuleFrontController extends ModuleFrontController
     public function postProcess()
     {
         $idOrder = (int) Tools::getValue('id_order', 0);
+        $secureKey = Tools::getValue('key', '');
 
         if ($idOrder <= 0) {
             $this->errors[] = $this->module->l('Commande invalide.', 'download');
@@ -50,8 +48,33 @@ class LcbftformDownloadModuleFrontController extends ModuleFrontController
             return;
         }
 
-        // SECURITE : Verifier que la commande appartient au client connecte
-        if ((int) $order->id_customer !== (int) $this->context->customer->id) {
+        // SECURITE : Verifier l'acces a la commande
+        $hasAccess = false;
+
+        // Option 1 : Client connecte et proprietaire de la commande
+        if ($this->context->customer && $this->context->customer->isLogged()) {
+            if ((int) $order->id_customer === (int) $this->context->customer->id) {
+                $hasAccess = true;
+            }
+        }
+
+        // Option 2 : Acces via token securise (pour invites)
+        if (!$hasAccess && !empty($secureKey)) {
+            // Verifier le secure_key du client associe a la commande
+            $customer = new Customer((int) $order->id_customer);
+            if (Validate::isLoadedObject($customer) && $customer->secure_key === $secureKey) {
+                $hasAccess = true;
+            }
+        }
+
+        // Option 3 : Verifier si le panier de la commande est dans la session actuelle
+        if (!$hasAccess && $this->context->cart) {
+            if ((int) $order->id_cart === (int) $this->context->cart->id) {
+                $hasAccess = true;
+            }
+        }
+
+        if (!$hasAccess) {
             $this->errors[] = $this->module->l('Vous n\'êtes pas autorisé à accéder à ce document.', 'download');
             return;
         }

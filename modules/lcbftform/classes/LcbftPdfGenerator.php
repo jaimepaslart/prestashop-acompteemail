@@ -232,10 +232,10 @@ class LcbftPdfGenerator
         $this->pdf->Cell(150, 5, $form->patrimoine_precision, 'B', 1);
 
         // IFI - sur deux lignes pour eviter chevauchement
-        // Ne cocher que si explicitement choisi (pas de coche par defaut)
+        // Ne cocher que si explicitement choisi (NULL = pas de choix)
         $this->pdf->Ln(2);
-        $ifiOui = ($form->soumis_ifi === 1 || $form->soumis_ifi === '1' || $form->soumis_ifi === 'oui');
-        $ifiNon = ($form->soumis_ifi === 'non' || (isset($form->soumis_ifi) && $form->soumis_ifi !== null && $form->soumis_ifi !== '' && !$ifiOui));
+        $ifiOui = ($form->soumis_ifi !== null && ($form->soumis_ifi == 1 || $form->soumis_ifi === '1'));
+        $ifiNon = ($form->soumis_ifi !== null && ($form->soumis_ifi == 0 || $form->soumis_ifi === '0'));
         $this->pdf->Cell(0, 5, 'Etes-vous soumis (e) a l\'impot sur la Fortune Immobiliere ?', 0, 1);
         $this->pdf->Cell(10, 5, '', 0, 0); // Indentation
         $this->drawCheckbox($ifiOui);
@@ -437,9 +437,9 @@ class LcbftPdfGenerator
         // Ligne 2: Lieu
         $this->pdf->SetFont('dejavusans', '', 9);
         $this->pdf->Cell(5, 6, 'A', 0, 0);
-        $this->pdf->Cell(60, 6, $form->lieu_signature, 'B', 0);
+        $this->pdf->Cell(60, 6, $form->lieu_signature, 'B', 1);
 
-        $this->pdf->Ln(8);
+        $this->pdf->Ln(5);
 
         // Zone de signature (cadre) a droite
         $this->pdf->SetDrawColor(0, 0, 0);
@@ -447,9 +447,9 @@ class LcbftPdfGenerator
 
         // Cadre signature positionne a droite de la date/lieu
         $boxX = 95;
-        $boxY = $startY - 22;
+        $boxY = $startY - 18;
         $boxW = 90;
-        $boxH = 50;
+        $boxH = 38;
         $this->pdf->Rect($boxX, $boxY, $boxW, $boxH);
 
         // Label signature en haut de la case
@@ -459,7 +459,7 @@ class LcbftPdfGenerator
 
         // Contenu signature si signee
         if ($form->acknowledged && !empty($form->signature_name)) {
-            $this->pdf->SetXY($boxX, $boxY + 12);
+            $this->pdf->SetXY($boxX, $boxY + 10);
             $this->pdf->SetFont('dejavusans', 'I', 10);
             $this->pdf->Cell($boxW, 5, 'Lu et approuve', 0, 1, 'C');
 

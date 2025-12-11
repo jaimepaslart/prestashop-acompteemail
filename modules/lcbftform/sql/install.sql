@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `PREFIX_lcbft_form` (
     `remunerations_annuelles` VARCHAR(255) DEFAULT NULL,
     `patrimoine_estimation` VARCHAR(50) DEFAULT NULL,
     `patrimoine_precision` VARCHAR(255) DEFAULT NULL,
-    `soumis_ifi` TINYINT(1) UNSIGNED DEFAULT 0,
+    `soumis_ifi` TINYINT(1) UNSIGNED DEFAULT NULL,
 
     -- Origine des fonds (JSON)
     `origine_fonds_json` TEXT DEFAULT NULL,

@@ -250,7 +250,7 @@
             // Désactiver le bouton
             if (this.elements.submitBtn) {
                 this.elements.submitBtn.disabled = true;
-                this.elements.submitBtn.innerHTML = '<i class="material-icons">&#xE863;</i> Enregistrement...';
+                this.elements.submitBtn.innerHTML = '⏳ Enregistrement...';
             }
 
             // Préparer les données
@@ -287,13 +287,23 @@
                     self.updatePaymentOptions();
 
                     // Mettre à jour l'attribut data
-                    self.elements.container.setAttribute('data-form-valid', '1');
+                    if (self.elements.container) {
+                        self.elements.container.setAttribute('data-form-valid', '1');
+                    }
 
-                    // Recharger la page pour afficher le résumé
+                    // Passer à l'étape suivante
                     if (data.is_complete) {
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1500);
+                        // Si on est en mode étape dédiée, passer à l'étape adresses
+                        if (self.elements.lcbftStep) {
+                            setTimeout(function() {
+                                self.goToNextStep();
+                            }, 1000);
+                        } else {
+                            // Mode legacy : recharger la page
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1500);
+                        }
                     }
                 } else {
                     self.showError(data.message);
@@ -307,7 +317,7 @@
                 // Réactiver le bouton
                 if (self.elements.submitBtn) {
                     self.elements.submitBtn.disabled = false;
-                    self.elements.submitBtn.innerHTML = '<i class="material-icons">&#xE876;</i> Valider et signer le formulaire LCB-FT';
+                    self.elements.submitBtn.innerHTML = '✍️ Valider et signer le formulaire LCB-FT';
                 }
             });
         },
@@ -483,7 +493,7 @@
                 alert.id = 'lcbft-checkout-block-alert';
                 alert.className = 'alert alert-danger';
                 alert.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; max-width: 90%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);';
-                alert.innerHTML = '<strong><i class="material-icons" style="vertical-align: middle;">&#xE002;</i> ' + this.config.validationError + '</strong><button type="button" class="close" style="margin-left: 15px;">&times;</button>';
+                alert.innerHTML = '<strong>⚠️ ' + this.config.validationError + '</strong><button type="button" class="close" style="margin-left: 15px;">&times;</button>';
                 document.body.appendChild(alert);
 
                 // Fermer au clic
@@ -518,10 +528,10 @@
 
             if (isComplete) {
                 this.elements.statusIndicator.className = 'lcbft-status lcbft-status-complete';
-                this.elements.statusIndicator.innerHTML = '<i class="material-icons">&#xE86C;</i><span>Formulaire LCB-FT signé</span>';
+                this.elements.statusIndicator.innerHTML = '✅ <span>Formulaire LCB-FT signé</span>';
             } else {
                 this.elements.statusIndicator.className = 'lcbft-status lcbft-status-pending';
-                this.elements.statusIndicator.innerHTML = '<i class="material-icons">&#xE002;</i><span>Formulaire LCB-FT requis</span>';
+                this.elements.statusIndicator.innerHTML = '📋 <span>Formulaire LCB-FT requis</span>';
             }
         },
 
@@ -607,7 +617,7 @@
                     const blockMessage = document.createElement('div');
                     blockMessage.id = 'lcbft-payment-block-message';
                     blockMessage.className = 'alert alert-danger mb-3';
-                    blockMessage.innerHTML = '<strong><i class="material-icons" style="vertical-align: middle; font-size: 18px;">&#xE14B;</i> Paiement bloqué</strong><br>' +
+                    blockMessage.innerHTML = '<strong>🚫 Paiement bloqué</strong><br>' +
                         'Vous devez remplir et signer le formulaire LCB-FT ci-dessus avant de pouvoir procéder au paiement.';
                     paymentSection.parentNode.insertBefore(blockMessage, paymentSection);
                 }
@@ -663,14 +673,16 @@
          */
         activateLcbftStep: function() {
             const lcbftStep = this.elements.lcbftStep;
-            const personalInfoStep = document.getElementById('checkout-personal-information-step');
 
             if (lcbftStep) {
-                // Marquer personal-info comme complet
-                if (personalInfoStep) {
-                    personalInfoStep.classList.remove('-current', 'js-current-step');
-                    personalInfoStep.classList.add('-complete', '-reachable');
-                }
+                // Désactiver toutes les autres étapes
+                const allSteps = document.querySelectorAll('.checkout-step');
+                allSteps.forEach(function(step) {
+                    if (step.id !== 'checkout-lcbft-step') {
+                        step.classList.remove('-current', 'js-current-step');
+                        // Garder -complete et -reachable si déjà présents
+                    }
+                });
 
                 // Activer l'étape LCB-FT
                 lcbftStep.classList.add('-current', 'js-current-step', '-reachable');
@@ -686,42 +698,54 @@
          */
         goToNextStep: function() {
             const lcbftStep = this.elements.lcbftStep;
-            const addressStep = document.getElementById('checkout-addresses-step');
 
-            if (lcbftStep && addressStep) {
-                // Marquer l'étape LCB-FT comme complète
+            if (lcbftStep) {
+                // Marquer visuellement l'étape LCB-FT comme complète
                 lcbftStep.classList.remove('-current', 'js-current-step');
                 lcbftStep.classList.add('-complete', '-reachable');
 
-                // Activer l'étape adresses
-                addressStep.classList.add('-current', 'js-current-step', '-reachable');
-                addressStep.classList.remove('-unreachable');
-
-                // Scroller vers l'étape adresses avec un offset
-                this.scrollToElement(addressStep);
-
-                // Recharger la page pour mettre à jour l'état côté serveur
-                setTimeout(function() {
-                    location.reload();
-                }, 500);
+                // Recharger la page pour que PrestaShop gère la transition d'étape
+                // côté serveur (plus fiable que la manipulation DOM)
+                location.reload();
             }
         },
 
         /**
          * Scroller vers un élément avec un offset (comme les autres étapes PrestaShop)
+         * Animation douce et progressive
          */
         scrollToElement: function(element) {
             if (!element) return;
 
-            // Calculer la position avec un offset de 100px depuis le haut
-            const headerOffset = 100;
+            // Offset plus grand pour ne pas descendre trop bas (250px depuis le haut)
+            const headerOffset = 250;
             const elementPosition = element.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            const targetPosition = elementPosition + window.pageYOffset - headerOffset;
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition;
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+            // Durée plus longue pour un scroll plus doux (800ms)
+            const duration = 800;
+            let startTime = null;
+
+            // Fonction d'easing pour un mouvement plus naturel
+            function easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
+
+            function animateScroll(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const progress = Math.min(timeElapsed / duration, 1);
+
+                window.scrollTo(0, startPosition + distance * easeOutCubic(progress));
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateScroll);
+                }
+            }
+
+            requestAnimationFrame(animateScroll);
         },
 
         /**
