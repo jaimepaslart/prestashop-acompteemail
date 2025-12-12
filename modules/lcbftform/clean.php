@@ -87,8 +87,9 @@ if (!$isCli) {
                 <li>Supprimer la table de la base de données</li>
                 <li>Supprimer tous les formulaires LCB-FT enregistrés</li>
                 <li>Supprimer l\'onglet d\'administration</li>
+                <li>Restaurer les fichiers originaux du thème (checkout-process.tpl)</li>
             </ul>
-            <p><strong>Cette action est irréversible !</strong></p>
+            <p><strong>Les données des formulaires seront perdues définitivement !</strong></p>
             <a href="clean.php?action=uninstall&confirm=yes" class="btn btn-danger">Confirmer la désinstallation</a>
             <a href="diagnostic.php" class="btn">Annuler</a>
         </div>
@@ -169,9 +170,77 @@ if ($doUninstall) {
     // Supprimer de la table des modules
     Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'module WHERE name = "' . pSQL($moduleName) . '"');
 
+    // ================================
+    // SUPPRESSION DES OVERRIDES THEME
+    // ================================
+    output('', 'info');
+    output('Suppression des overrides du thème...', 'info');
+
+    // Récupérer le thème actif
+    $shop = new Shop((int) Configuration::get('PS_SHOP_DEFAULT'));
+    $themeActive = $shop->theme_name;
+    $themeDir = _PS_ALL_THEMES_DIR_ . $themeActive . '/';
+
+    // Liste des fichiers installés par le module
+    $themeOverrideFiles = array(
+        'templates/checkout/_partials/steps/lcbft-step.tpl',
+        'templates/checkout/checkout-process.tpl',
+    );
+
+    $removedFiles = 0;
+    $restoredFiles = 0;
+
+    foreach ($themeOverrideFiles as $relativePath) {
+        $filePath = $themeDir . $relativePath;
+
+        if (file_exists($filePath)) {
+            // Chercher une sauvegarde .bak pour restaurer
+            $backupPattern = $filePath . '.bak.*';
+            $backups = glob($backupPattern);
+
+            if (!empty($backups)) {
+                // Prendre la sauvegarde la plus récente
+                rsort($backups);
+                $latestBackup = $backups[0];
+
+                // Restaurer la sauvegarde
+                if (copy($latestBackup, $filePath)) {
+                    output('Restauré depuis backup : ' . $relativePath, 'success');
+                    // Supprimer les backups
+                    foreach ($backups as $backup) {
+                        @unlink($backup);
+                    }
+                    $restoredFiles++;
+                } else {
+                    output('Erreur restauration : ' . $relativePath, 'error');
+                }
+            } else {
+                // Pas de backup, supprimer le fichier si c'est le nôtre
+                // Vérifier que c'est bien notre fichier (contient lcbft)
+                $content = file_get_contents($filePath);
+                if (strpos($content, 'lcbft') !== false || strpos($content, 'LCB-FT') !== false) {
+                    if (@unlink($filePath)) {
+                        output('Supprimé : ' . $relativePath, 'success');
+                        $removedFiles++;
+                    } else {
+                        output('Erreur suppression : ' . $relativePath, 'error');
+                    }
+                } else {
+                    output('Fichier non modifié par le module, ignoré : ' . $relativePath, 'info');
+                }
+            }
+        }
+    }
+
+    if ($removedFiles > 0 || $restoredFiles > 0) {
+        output('Fichiers supprimés : ' . $removedFiles . ', restaurés : ' . $restoredFiles, 'info');
+    } else {
+        output('Aucun override trouvé dans le thème.', 'info');
+    }
+
     output('', 'info');
     output('Désinstallation terminée.', 'success');
-    output('Les fichiers du module sont toujours présents.', 'info');
+    output('Les fichiers du module sont toujours présents dans /modules/lcbftform/', 'info');
     output('Vous pouvez les supprimer manuellement si nécessaire.', 'info');
 
 } else {
